@@ -2,6 +2,7 @@
   "entrypoint": "index.html",
   "shell": "src/coaching-app.js",
   "sources": [
+    "src/**/*",
     "images/**/*"
   ],
   "extraDependencies": [

@@ -22,6 +22,9 @@ import '@polymer/iron-pages/iron-pages.js';
 import '@polymer/iron-selector/iron-selector.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
 import './coaching-icons.js';
+import './coaching-auth.js';
+import './coaching-landing-page.js';
+import './coaching-user-menu.js';
 
 // Gesture events like tap and track generated from touch will not be
 // preventable, allowing for better scrolling performance.
@@ -79,47 +82,64 @@ class CoachingApp extends PolymerElement {
       <app-route route="{{route}}" pattern="[[rootPath]]:page" data="{{routeData}}" tail="{{subroute}}">
       </app-route>
 
-      <app-drawer-layout fullbleed="" narrow="{{narrow}}">
-        <!-- Drawer content -->
-        <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
-          <app-toolbar>Menu</app-toolbar>
-          <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-            <a name="view1" href="[[rootPath]]view1">View One</a>
-            <a name="view2" href="[[rootPath]]view2">View Two</a>
-            <a name="view3" href="[[rootPath]]view3">View Three</a>
-          </iron-selector>
-        </app-drawer>
+      <coaching-auth id="auth" loading="{{loading}}" signed-in="{{signedIn}}" user="{{user}}"></coaching-auth>
+      <template is="dom-if" if="{{loading}}">
+        <h1>Loading...</h1>
+      </template>
+      <template is="dom-if" if="{{!loading}}">
+        <template is="dom-if" if="{{!signedIn}}">
+          <coaching-landing-page on-sign-in="_handleSignInTapped"></coaching-landing-page>
+        </template>
+        <template is="dom-if" if="{{signedIn}}">
+          <app-drawer-layout fullbleed="" narrow="{{narrow}}">
+            <!-- Drawer content -->
+            <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
+              <app-toolbar>Menu</app-toolbar>
+              <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+                <a name="dashboard" href="[[rootPath]]dashboard">Home</a>
+              </iron-selector>
+            </app-drawer>
 
-        <!-- Main content -->
-        <app-header-layout has-scrolling-region="">
+            <!-- Main content -->
+            <app-header-layout has-scrolling-region="">
 
-          <app-header slot="header" condenses="" reveals="" effects="waterfall">
-            <app-toolbar>
-              <paper-icon-button icon="my-icons:menu" drawer-toggle=""></paper-icon-button>
-              <div main-title="">ISD Coaching</div>
-            </app-toolbar>
-          </app-header>
+              <app-header slot="header" condenses="" reveals="" effects="waterfall">
+                <app-toolbar>
+                  <paper-icon-button icon="my-icons:menu" drawer-toggle=""></paper-icon-button>
+                  <div main-title="">ISD Coaching</div>
+                  <coaching-user-menu user="[[user]]" on-sign-out="_handleSignOut"></coaching-user-menu>
+                </app-toolbar>
+              </app-header>
 
-          <iron-pages selected="[[page]]" attr-for-selected="name" role="main">
-            <my-view1 name="view1"></my-view1>
-            <my-view2 name="view2"></my-view2>
-            <my-view3 name="view3"></my-view3>
-            <coaching-view404 name="view404"></coaching-view404>
-          </iron-pages>
-        </app-header-layout>
-      </app-drawer-layout>
+              <iron-pages selected="[[page]]" attr-for-selected="name" role="main">
+                <coaching-dashboard name="dashboard"></coaching-dashboard>
+                <coaching-view404 name="view404"></coaching-view404>
+              </iron-pages>
+            </app-header-layout>
+          </app-drawer-layout>
+        </template>
+      </template>
     `;
   }
 
   static get properties() {
     return {
+      loading: {
+        type: Boolean,
+        value: true
+      },
       page: {
         type: String,
         reflectToAttribute: true,
         observer: '_pageChanged'
       },
       routeData: Object,
-      subroute: Object
+      signedIn: {
+        type: Boolean,
+        value: false
+      },
+      subroute: Object,
+      user: Object
     };
   }
 
@@ -129,22 +149,30 @@ class CoachingApp extends PolymerElement {
     ];
   }
 
+  ready() {
+    super.ready();
+    this._initFirestore();
+    this._handleDevEnvironment();
+  }
+
   _routePageChanged(page) {
      // Show the corresponding page according to the route.
      //
      // If no page was found in the route data, page will be an empty string.
-     // Show 'view1' in that case. And if the page doesn't exist, show 'view404'.
+     // Show 'dashboard' in that case. And if the page doesn't exist, show 'view404'.
     if (!page) {
-      this.page = 'view1';
-    } else if (['view1', 'view2', 'view3'].indexOf(page) !== -1) {
+      this.page = 'dashboard';
+    } else if (['dashboard'].indexOf(page) !== -1) {
       this.page = page;
     } else {
       this.page = 'view404';
     }
 
     // Close a non-persistent drawer when the page & route are changed.
-    if (!this.$.drawer.persistent) {
-      this.$.drawer.close();
+    if (this.signedIn) {
+      if (!this.$.drawer.persistent) {
+        this.$.drawer.close();
+      }
     }
   }
 
@@ -154,18 +182,36 @@ class CoachingApp extends PolymerElement {
     // Note: `polymer build` doesn't like string concatenation in the import
     // statement, so break it up.
     switch (page) {
-      case 'view1':
-        import('./my-view1.js');
-        break;
-      case 'view2':
-        import('./my-view2.js');
-        break;
-      case 'view3':
-        import('./my-view3.js');
+      case 'dashboard':
+        import('./coaching-dashboard.js');
         break;
       case 'view404':
         import('./coaching-view404.js');
         break;
+    }
+  }
+
+  _handleSignInTapped() {
+    this.$.auth.signIn();
+  }
+
+  _handleSignOut() {
+    this.$.auth.signOut();
+    // todo: revoke
+  }
+
+  _initFirestore() {
+    const firestore = firebase.firestore();
+    const settings = {timestampsInSnapshots: true};
+    firestore.settings(settings);
+  }
+
+  _handleDevEnvironment() {
+    // Set the firebase functions URL if the project is running locally
+    if (window.location.hostname == 'localhost') {
+      firebase.functions()._url = name => {
+          return `http://localhost:5001/isdcoaching/us-central1/${name}`
+      }
     }
   }
 }
