@@ -1,4 +1,7 @@
-import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
+import {
+    PolymerElement,
+    html
+} from '@polymer/polymer/polymer-element.js';
 
 class coachingAuth extends PolymerElement {
     static get properties() {
@@ -59,6 +62,7 @@ class coachingAuth extends PolymerElement {
         } else {
             console.log('gapi signed out, signing out firebase')
             firebase.auth().signOut()
+            
         }
     }
 
@@ -78,10 +82,10 @@ class coachingAuth extends PolymerElement {
                         photoURL: firebaseUser.photoURL
                     };
                     db.collection('users').doc(firebaseUser.uid).set(user)
-                    .then(() => {
-                        console.log('Added the user')
-                        this.user = user;
-                    });
+                        .then(() => {
+                            console.log('Added the user')
+                            this.user = user;
+                        });
                 }
             })
         } else {
