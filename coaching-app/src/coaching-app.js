@@ -21,7 +21,7 @@ import '@polymer/app-route/app-route.js';
 import '@polymer/iron-pages/iron-pages.js';
 import '@polymer/iron-selector/iron-selector.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
-import './my-icons.js';
+import './coaching-icons.js';
 
 // Gesture events like tap and track generated from touch will not be
 // preventable, allowing for better scrolling performance.
@@ -29,9 +29,9 @@ setPassiveTouchGestures(true);
 
 // Set Polymer's root path to the same value we passed to our service worker
 // in `index.html`.
-setRootPath(MyAppGlobals.rootPath);
+setRootPath(CoachingAppGlobals.rootPath);
 
-class MyApp extends PolymerElement {
+class CoachingApp extends PolymerElement {
   static get template() {
     return html`
       <style>
@@ -96,7 +96,7 @@ class MyApp extends PolymerElement {
           <app-header slot="header" condenses="" reveals="" effects="waterfall">
             <app-toolbar>
               <paper-icon-button icon="my-icons:menu" drawer-toggle=""></paper-icon-button>
-              <div main-title="">My App</div>
+              <div main-title="">ISD Coaching</div>
             </app-toolbar>
           </app-header>
 
@@ -104,7 +104,7 @@ class MyApp extends PolymerElement {
             <my-view1 name="view1"></my-view1>
             <my-view2 name="view2"></my-view2>
             <my-view3 name="view3"></my-view3>
-            <my-view404 name="view404"></my-view404>
+            <coaching-view404 name="view404"></coaching-view404>
           </iron-pages>
         </app-header-layout>
       </app-drawer-layout>
@@ -164,10 +164,10 @@ class MyApp extends PolymerElement {
         import('./my-view3.js');
         break;
       case 'view404':
-        import('./my-view404.js');
+        import('./coaching-view404.js');
         break;
     }
   }
 }
 
-window.customElements.define('my-app', MyApp);
+window.customElements.define('coaching-app', CoachingApp);

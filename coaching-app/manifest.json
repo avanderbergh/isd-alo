@@ -1,7 +1,7 @@
 {
-  "name": "My App",
-  "short_name": "My App",
-  "description": "My App description",
+  "name": "ISD Coaching",
+  "short_name": "ISD Coaching",
+  "description": "Management app for the ISD Coaching Program",
   "icons": [
     {
       "src": "images/manifest/icon-192x192.png",

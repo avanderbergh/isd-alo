@@ -15,8 +15,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="generator" content="Polymer Starter Kit">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>My App</title>
-    <meta name="description" content="My App description">
+    <title>ISD Coaching</title>
+    <meta name="description" content="Management app for the ISD Coaching Program">
 
     <!--
       The `<base>` tag below is present to support two advanced deployment options:
@@ -34,6 +34,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- See https://goo.gl/OOhYW5 -->
     <link rel="manifest" href="manifest.json">
+
+    <!-- Import Google API Library -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+    <!-- Import & Initialize Firebase -->
+    <!-- Firebase App is always required and must be first -->
+    <script src="/__/firebase/5.6.0/firebase-app.js"></script>
+
+    <!-- Add additional services that you want to use -->
+    <script src="/__/firebase/5.6.0/firebase-auth.js"></script>
+    <script src="/__/firebase/5.6.0/firebase-functions.js"></script>
+    <script src="/__/firebase/5.6.0/firebase-firestore.js"></script>
+
+    <script src="/__/firebase/init.js"></script>
 
     <!-- See https://goo.gl/qRE0vM -->
     <meta name="theme-color" content="#3f51b5">
@@ -71,13 +85,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       * to indicate the path from which you'll be serving, including leading
       * and trailing slashes (e.g., `/my-app/`).
       */
-      window.MyAppGlobals = { rootPath: '/' };
+      window.CoachingAppGlobals = { rootPath: '/' };
 
       // Load and register pre-caching Service Worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('service-worker.js', {
-            scope: MyAppGlobals.rootPath
+            scope: CoachingAppGlobals.rootPath
           });
         });
       }
@@ -87,7 +101,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 
     <!-- Load your application shell -->
-    <script type="module" src="src/my-app.js"></script>
+    <script type="module" src="src/coaching-app.js"></script>
 
     <!-- Add any global styles for body, document, etc. -->
     <style>
@@ -101,7 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
   </head>
   <body>
-    <my-app></my-app>
+    <coaching-app></coaching-app>
     <noscript>
       Please enable JavaScript to view this website.
     </noscript>
