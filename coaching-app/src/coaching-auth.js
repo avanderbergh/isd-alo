@@ -31,7 +31,7 @@ class coachingAuth extends PolymerElement {
         const config = {
             apiKey: '***REMOVED***',
             discoveryDocs: ["https://people.googleapis.com/$discovery/rest?version=v1"],
-            clientId: '1094918612314-jprqprt0351fj6nr5dl95j2j3o93vd8l.apps.googleusercontent.com',
+            clientId: '***REMOVED***-0h94m4e1a7gvrb0af95c2i3ir6710kq0.apps.googleusercontent.com',
             scope: scopes.join(' ')
         }
         new Promise((resolve, reject) => gapi.load('client:auth2', () => resolve()))
