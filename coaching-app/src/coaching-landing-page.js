@@ -24,12 +24,13 @@ class CoachingLandingPage extends PolymerElement {
 
                 #vwc_logo {
                     height: 30vh;
+                }     
                 }
             </style>
             <div style="text-align: center; margin-top: 5rem;">
                 <h1>ISD Coaching</h1>
                 <h2>Place a fancy slogan here...</h2>
-                <coaching-signin-button on-sign-in="_handleSignIn"></coaching-signin-button>
+                <coaching-signin-button class="blue" on-sign-in="_handleSignIn"></coaching-signin-button>
             </div>
         `;
     }

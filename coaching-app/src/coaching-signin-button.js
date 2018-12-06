@@ -5,9 +5,11 @@ class CoachingSigninButton extends PolymerElement {
     static get template() {
         return html`
             <style>
-                #sign-in-button {
-                    --mdc-theme-primary: #fff;
-                    --mdc-theme-on-primary: #000
+                paper-button {
+                    /*--mdc-theme-primary: #fff;
+                    --mdc-theme-on-primary: #000;*/
+                    background-color:#42a5f5;
+                    color:#fff;
                 }
             </style>
 

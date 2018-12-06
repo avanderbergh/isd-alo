@@ -74,7 +74,7 @@ class coachingAuth extends PolymerElement {
                 if (doc.exists) {
                     let user = doc.data();
                     user.uid = doc.id;
-                    this.user = user;
+                    this.user = user; /* todo: update usertypes */
                 } else {
                     const user = {
                         displayName: firebaseUser.displayName,
