@@ -50,19 +50,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <script>
 
-      import('./env-config.js').then(module => {
-        console.log(module.firebaseConfig())
-      })
       // Initialize Firebase
-      var config = {
-        apiKey: "***REMOVED***",
-        authDomain: "isdcoaching.firebaseapp.com",
-        databaseURL: "https://isdcoaching.firebaseio.com",
-        projectId: "isdcoaching",
-        storageBucket: "isdcoaching.appspot.com",
-        messagingSenderId: "***REMOVED***"
-      };
-      firebase.initializeApp(config);
+      import('./env-config.js')
+      .then(module => {
+        firebase.initializeApp(module.firebaseConfig());
+      })
+
     </script>
 
     <!-- See https://goo.gl/qRE0vM -->
