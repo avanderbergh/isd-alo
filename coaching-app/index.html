@@ -49,6 +49,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase-functions.js"></script>
 
     <script>
+
+      import('./env-config.js').then(module => {
+        console.log(module.firebaseConfig())
+      })
       // Initialize Firebase
       var config = {
         apiKey: "***REMOVED***",

@@ -3,6 +3,8 @@ import {
     html
 } from '@polymer/polymer/polymer-element.js';
 
+import {gapiConfig} from '../env-config.js';
+
 class coachingAuth extends PolymerElement {
     static get properties() {
         return {
@@ -23,20 +25,9 @@ class coachingAuth extends PolymerElement {
 
     ready() {
         super.ready();
-
-        const scopes = [
-            'https://www.googleapis.com/auth/userinfo.profile'
-        ];
-
-        const config = {
-            apiKey: '***REMOVED***',
-            discoveryDocs: ["https://people.googleapis.com/$discovery/rest?version=v1"],
-            clientId: '***REMOVED***-0h94m4e1a7gvrb0af95c2i3ir6710kq0.apps.googleusercontent.com',
-            scope: scopes.join(' ')
-        }
         new Promise((resolve, reject) => gapi.load('client:auth2', () => resolve()))
             .then(() => {
-                return gapi.client.init(config)
+                return gapi.client.init(gapiConfig())
             })
             .then(() => {
                 gapi.auth2.getAuthInstance().isSignedIn.listen(this._updateSigninStatus.bind(this));
