@@ -1,5 +1,6 @@
 export function firebaseConfig() {
-    if (window.location.hostname == 'localhost') {
+    if (window.location.hostname == 'localhost' || 'isdcoaching-dev.firebaseapp.com') {
+        console.log('Using Dev Environment for Firebase');
         // Return Dev Config
         return {
             apiKey: "***REMOVED***",
@@ -28,7 +29,8 @@ export function gapiConfig() {
     ];
     const discoveryDocs = ["https://people.googleapis.com/$discovery/rest?version=v1"];
 
-    if (window.location.hostname == 'localhost') {
+    if (window.location.hostname == 'localhost' || 'isdcoaching-dev.firebaseapp.com') {
+        console.log('Using Dev Environment for GAPI config');
         // Return Dev Config
         return {
             apiKey: '***REMOVED***',

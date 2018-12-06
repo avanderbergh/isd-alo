@@ -13,8 +13,7 @@
     "public": "coaching-app/build/firebase-hosting",
     "ignore": [
       "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
+      "**/.*"
     ],
     "rewrites": [
       {

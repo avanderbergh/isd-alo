@@ -3,7 +3,7 @@ import {
     html
 } from '@polymer/polymer/polymer-element.js';
 
-import {gapiConfig} from '../env-config.js';
+import {gapiConfig} from './env-config.js';
 
 class coachingAuth extends PolymerElement {
     static get properties() {

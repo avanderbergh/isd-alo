@@ -5,6 +5,9 @@
     "src/**/*",
     "images/**/*"
   ],
+  "fragments"  :[
+    "src/env-config.js"
+  ],
   "extraDependencies": [
     "manifest.json",
     "node_modules/@webcomponents/webcomponentsjs/*.js",
@@ -19,7 +22,7 @@
       ],
       "js": {
         "minify": true,
-        "transformModulesToAmd": true
+        "transformModulesToAmd": false
       },
       "css": {
         "minify": true
