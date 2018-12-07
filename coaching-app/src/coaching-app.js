@@ -170,7 +170,7 @@ class CoachingApp extends PolymerElement {
 
     // Close a non-persistent drawer when the page & route are changed.
     if (this.signedIn) {
-      if (!this.$.drawer.persistent) {
+      if (!this.shadowRoot.drawer.persistent) {
         this.$.drawer.close();
       }
     }
