@@ -13,7 +13,7 @@ class CoachingDashboard extends PolymerElement {
       </style>
 
       <div class="card">
-        <h1>Welcome</h1>
+        <h1>Welcome Hello Here</h1>
       </div>
     `;
   }
