@@ -8,8 +8,14 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
-import { setPassiveTouchGestures, setRootPath } from '@polymer/polymer/lib/utils/settings.js';
+import {
+  PolymerElement,
+  html
+} from '@polymer/polymer/polymer-element.js';
+import {
+  setPassiveTouchGestures,
+  setRootPath
+} from '@polymer/polymer/lib/utils/settings.js';
 import '@polymer/app-layout/app-drawer/app-drawer.js';
 import '@polymer/app-layout/app-drawer-layout/app-drawer-layout.js';
 import '@polymer/app-layout/app-header/app-header.js';
@@ -36,7 +42,7 @@ setRootPath(CoachingAppGlobals.rootPath);
 
 class CoachingApp extends PolymerElement {
   static get template() {
-    return html`
+    return html `
       <style>
         :host {
           --app-primary-color: #4285f4;
@@ -97,6 +103,8 @@ class CoachingApp extends PolymerElement {
               <app-toolbar>Menu</app-toolbar>
               <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
                 <a name="dashboard" href="[[rootPath]]dashboard">Home</a>
+                <a name="workshops" href="[[rootPath]]workshops">Workshops</a>
+                <a name="spaces" href="[[rootPath]]spaces">Spaces</a>
               </iron-selector>
             </app-drawer>
 
@@ -113,6 +121,8 @@ class CoachingApp extends PolymerElement {
 
               <iron-pages selected="[[page]]" attr-for-selected="name" role="main">
                 <coaching-dashboard name="dashboard"></coaching-dashboard>
+                <coaching-workshops name="workshops"></coaching-workshops>
+                <coaching-spaces name="spaces"></coaching-spaces>
                 <coaching-view404 name="view404"></coaching-view404>
               </iron-pages>
             </app-header-layout>
@@ -156,13 +166,13 @@ class CoachingApp extends PolymerElement {
   }
 
   _routePageChanged(page) {
-     // Show the corresponding page according to the route.
-     //
-     // If no page was found in the route data, page will be an empty string.
-     // Show 'dashboard' in that case. And if the page doesn't exist, show 'view404'.
+    // Show the corresponding page according to the route.
+    //
+    // If no page was found in the route data, page will be an empty string.
+    // Show 'dashboard' in that case. And if the page doesn't exist, show 'view404'.
     if (!page) {
       this.page = 'dashboard';
-    } else if (['dashboard'].indexOf(page) !== -1) {
+    } else if (['dashboard', 'workshops', 'spaces'].indexOf(page) !== -1) {
       this.page = page;
     } else {
       this.page = 'view404';
@@ -170,8 +180,9 @@ class CoachingApp extends PolymerElement {
 
     // Close a non-persistent drawer when the page & route are changed.
     if (this.signedIn) {
-      if (!this.shadowRoot.drawer.persistent) {
-        this.$.drawer.close();
+      const drawer = this.shadowRoot.querySelector('#drawer');
+      if (!drawer.persistent) {
+        drawer.close();
       }
     }
   }
@@ -184,6 +195,12 @@ class CoachingApp extends PolymerElement {
     switch (page) {
       case 'dashboard':
         import('./coaching-dashboard.js');
+        break;
+      case 'workshops':
+        import('./coaching-workshops.js');
+        break;
+      case 'spaces':
+        import('./coaching-spaces.js');
         break;
       case 'view404':
         import('./coaching-view404.js');
@@ -202,7 +219,9 @@ class CoachingApp extends PolymerElement {
 
   _initFirestore() {
     const firestore = firebase.firestore();
-    const settings = {timestampsInSnapshots: true};
+    const settings = {
+      timestampsInSnapshots: true
+    };
     firestore.settings(settings);
   }
 
@@ -210,7 +229,7 @@ class CoachingApp extends PolymerElement {
     // Set the firebase functions URL if the project is running locally
     if (window.location.hostname == 'localhost') {
       firebase.functions()._url = name => {
-          return `http://localhost:5001/isdcoaching/us-central1/${name}`
+        return `http://localhost:5001/isdcoaching/us-central1/${name}`
       }
     }
   }
