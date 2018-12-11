@@ -121,7 +121,7 @@ class CoachingApp extends PolymerElement {
 
               <iron-pages selected="[[page]]" attr-for-selected="name" role="main">
                 <coaching-dashboard name="dashboard"></coaching-dashboard>
-                <coaching-workshops name="workshops"></coaching-workshops>
+                <coaching-workshops name="workshops" user="[[user]]"></coaching-workshops>
                 <coaching-spaces name="spaces"></coaching-spaces>
                 <coaching-view404 name="view404"></coaching-view404>
               </iron-pages>

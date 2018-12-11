@@ -3,6 +3,11 @@ import './coaching-days.js';
 import './shared-styles.js';
 
 class CoachingDashboard extends PolymerElement {
+  static get properties() {
+    return {
+      user: Object
+    }
+  }
   static get template() {
     return html`
       <style include="shared-styles">
