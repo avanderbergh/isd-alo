@@ -48,15 +48,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase-messaging.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase-functions.js"></script>
 
-    <script>
-
-      // Initialize Firebase
-      import('./src/env-config.js')
-      .then(module => {
-        firebase.initializeApp(module.firebaseConfig());
-      })
-
-    </script>
 
     <!-- See https://goo.gl/qRE0vM -->
     <meta name="theme-color" content="#3f51b5">
@@ -109,8 +100,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
     <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 
-    <!-- Load your application shell -->
-    <script type="module" src="src/coaching-app.js"></script>
+    <script>
+      // Import environment config
+      import('./src/env-config.js')
+      .then(module => {
+        // Initialize Firebase
+        firebase.initializeApp(module.firebaseConfig());
+        // Load the Application Shell
+        import('./src/coaching-app.js')
+      })
+    </script>
 
     <!-- Add any global styles for body, document, etc. -->
     <style>
