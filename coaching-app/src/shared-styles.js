@@ -40,6 +40,12 @@ $_documentContainer.innerHTML = `<dom-module id="shared-styles">
         color: #212121;
         font-size: 22px;
       }
+
+      paper-fab {
+        position: absolute;
+        bottom: 24px;
+        right: 24px;
+      }
     </style>
   </template>
 </dom-module>`;

@@ -1,7 +1,13 @@
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
+import './coaching-days.js';
 import './shared-styles.js';
 
 class CoachingDashboard extends PolymerElement {
+  static get properties() {
+    return {
+      user: Object
+    }
+  }
   static get template() {
     return html`
       <style include="shared-styles">
@@ -13,7 +19,7 @@ class CoachingDashboard extends PolymerElement {
       </style>
 
       <div class="card">
-        <h1>Welcome Hello Here</h1>
+        <coaching-days></coaching-days>
       </div>
     `;
   }
