@@ -4,15 +4,16 @@ import {
 } from '@polymer/polymer/polymer-element.js';
 
 import('./shared-styles.js');
-import('./coaching-spaces-new-space');
+
+import('./coaching-sessions-new-session.js')
 
 
-class CoachingSpaces extends PolymerElement {
+class CoachingSessions extends PolymerElement {
 
     static get properties() {
         return {
             snapshotListener: Object,
-            spaces: {
+            sessions: {
                 type: Array,
                 value: []
             }
@@ -29,21 +30,26 @@ class CoachingSpaces extends PolymerElement {
                 }
             </style>
 
-            <h1>Spaces</h1>
-            <div> Space list: </div>
-            <dom-repeat items="{{spaces}}" as="space">
+            <h1>sessions</h1>
+            <div> session list: </div>
+            <dom-repeat items="{{sessions}}" as="session">
                 <template>
-                    <div>name: <span>{{space.name}}</span></div>
-                </template>                    
+                    <div>title: <span>{{session.title}}</span></div>
+                    <div>description: <span>{{session.description}}</span></div>
+                    <div>startTime: <span>{{session.startTime}}</span></div>
+                    <div>endTime: <span>{{session.endTime}}</span></div>
+                </template> 
+                                   
             </dom-repeat>
-            <coaching-spaces-new-space></coaching-spaces-new-space>    
 
+            <coaching-sessions-new-session></coaching-sessions-new-session>
+            
         `;
     }
 
     ready() {
         super.ready();
-        this._loadSpaces();
+        this._loadsessions();
     }
 
     disconnectedCallback() {
@@ -51,16 +57,16 @@ class CoachingSpaces extends PolymerElement {
         if (this.snapshotListener) this.snapshotListener();
     }
 
-    _loadSpaces() {
+    _loadsessions() {
         const db = firebase.firestore();
-        this.snapshotListener = db.collection('spaces')
-            .orderBy('name')
+        this.snapshotListener = db.collection('sessions')
+            .orderBy('startTime')
             .onSnapshot(querySnapshot => {
-                this.set('spaces', []);
+                this.set('sessions', []);
                 querySnapshot.forEach(doc => {
                     let space = doc.data();
                     space.__id__ = doc.id;
-                    this.push('spaces', space)
+                    this.push('sessions', space)
                 })
             })
 
@@ -68,4 +74,4 @@ class CoachingSpaces extends PolymerElement {
 
 }
 
-customElements.define('coaching-spaces', CoachingSpaces);
+customElements.define('coaching-sessions', CoachingSessions);
