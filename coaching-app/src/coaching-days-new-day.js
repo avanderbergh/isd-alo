@@ -10,6 +10,11 @@ import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-input/paper-textarea.js';
 import '@polymer/iron-icons/iron-icons.js';
 
+import '@vaadin/vaadin-date-picker/vaadin-date-picker.js';
+import '@vaadin/vaadin-time-picker/vaadin-time-picker.js';
+
+import './date-time-picker.js'
+
 
 
 
@@ -19,6 +24,18 @@ class CoachingDaysNewDay extends PolymerElement {
             formData: {
                 type: Object,
                 value: {}
+            },
+            fdtStart:{
+                type:String,
+                value:''
+            },
+            fdtEnd:{
+                type:String,
+                value:''
+            },
+            dateTimeFormData:{
+                type:Object,
+                value:{}
             }
         }
     }
@@ -31,16 +48,22 @@ class CoachingDaysNewDay extends PolymerElement {
                 }
             </style>
                 
+
+
+            
             <paper-fab icon="add" on-tap="_handleAdddayTapped"></paper-fab>
             <paper-dialog id="new-day-dialog">
-                <h2>New day</h2>
-                <paper-input label="startTime" value="{{formData.startTime}}"></paper-input>
+                <label>Start</label>
+                <date-time-picker date-time-format={{fdtStart}} form-data={{dateTimeFormData}}></date-time-picker>
+                <label>End</label>
+                <date-time-picker date-time-format={{fdtEnd}} form-data=[[dateTimeFormData]]></date-time-picker>
                 
-                <paper-textarea label="endTime" value="{{formData.endTime}}"></paper-textarea>
+
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancel</paper-button>
                     <paper-button autofocus on-tap="_handleSubmitTapped">Submit</paper-button>
                 </div>
+            
             </paper-dialog>
         `;
     }
@@ -58,13 +81,12 @@ class CoachingDaysNewDay extends PolymerElement {
     }
 
     _handleSubmitTapped() {
-        this.formData.owner = firebase.auth().getUid();
         const db = firebase.firestore();
-        
+
         const doc = Object.assign({}, this.formData, {
-            startTime: new Date(this.formData.startTime),endTime:new Date(this.formData.endTime)
-          })
-        
+            startTime: new Date(this.fdtStart),
+            endTime: new Date(this.fdtEnd)
+        })
         db.collection('days').add(doc).then(() => {
             this.set('formData', {});
             this.shadowRoot.querySelector('#new-day-dialog').close();

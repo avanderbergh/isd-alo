@@ -18,6 +18,8 @@
     "@polymer/paper-listbox": "^3.0.1",
     "@polymer/paper-spinner": "^3.0.1",
     "@polymer/polymer": "^3.0.0",
+    "@vaadin/vaadin-date-picker": "^3.3.2",
+    "@vaadin/vaadin-time-picker": "^1.1.1",
     "date-fns": "^2.0.0-alpha.24",
     "nodemon": "^1.18.7",
     "web-animations-js": "^2.3.1"
