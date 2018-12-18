@@ -5,19 +5,28 @@ import {
 
 import('./shared-styles.js');
 
-import('./coaching-sessions-new-session.js')
+import('./coaching-sessions-session-card.js');
+import('./coaching-sessions-new-session.js');
 
 
 class CoachingSessions extends PolymerElement {
 
     static get properties() {
         return {
+            day: Object,
             snapshotListener: Object,
             sessions: {
                 type: Array,
                 value: []
-            }
+            },
+            user: Object
         };
+    }
+
+    static get observers() {
+        return [
+            '_dayChanged(day)'
+        ]
     }
 
     static get template() {
@@ -28,28 +37,30 @@ class CoachingSessions extends PolymerElement {
 
                 padding: 10px;
                 }
+                
+                #sessionsContainer {
+                    display: flex;
+                    flex-wrap: wrap;
+                }
             </style>
 
-            <h1>sessions</h1>
-            <div> session list: </div>
-            <dom-repeat items="{{sessions}}" as="session">
-                <template>
-                    <div>title: <span>{{session.title}}</span></div>
-                    <div>description: <span>{{session.description}}</span></div>
-                    <div>startTime: <span>{{session.startTime}}</span></div>
-                    <div>endTime: <span>{{session.endTime}}</span></div>
-                </template> 
-                                   
-            </dom-repeat>
-
+            <h1>Your Sessions</h1>
+            <div id="sessionsContainer">
+                <dom-repeat items="{{sessions}}" as="session">
+                    <template>
+                        <coaching-sessions-session-card session="[[session]]"></coaching-sessions-session-card>
+                    </template>          
+                </dom-repeat>
+            </div>
             <coaching-sessions-new-session></coaching-sessions-new-session>
-            
         `;
     }
 
     ready() {
         super.ready();
-        this._loadsessions();
+        if (!this.day) {
+            this._loadSessions();
+        }
     }
 
     disconnectedCallback() {
@@ -57,10 +68,20 @@ class CoachingSessions extends PolymerElement {
         if (this.snapshotListener) this.snapshotListener();
     }
 
-    _loadsessions() {
+    _loadSessions(day=null, user=null) {
         const db = firebase.firestore();
-        this.snapshotListener = db.collection('sessions')
-            .orderBy('startTime')
+
+        let query = db.collection('sessions');
+        if (day) {
+            console.log('filtering by day')
+            query = query.where('startTime', '>=', day.startTime)
+                .where('startTime', '<=', day.endTime)
+        }
+        if (user) {
+            console.log('filtering by user')
+            query = query.where('presenters', 'array-contains', user.uid)
+        }
+        this.snapshotListener = query.orderBy('startTime')
             .onSnapshot(querySnapshot => {
                 this.set('sessions', []);
                 querySnapshot.forEach(doc => {
@@ -68,8 +89,12 @@ class CoachingSessions extends PolymerElement {
                     space.__id__ = doc.id;
                     this.push('sessions', space)
                 })
-            })
+        })
+    }
 
+    _dayChanged(day) {
+        console.log('Day Changed', day);
+        this._loadSessions(day, this.user);
     }
 
 }

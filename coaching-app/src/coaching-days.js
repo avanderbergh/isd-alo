@@ -27,7 +27,8 @@ class CoachingDays extends PolymerElement {
             routeData: {
                 type: Object,
                 observer: '_routeDateChanged'
-            }
+            },
+            user: Object
         };
     }
 
@@ -63,7 +64,7 @@ class CoachingDays extends PolymerElement {
                 <coaching-days-new-day></coaching-days-new-day>
             </template>
             <template is="dom-if" if="{{routeData.dayId}}">
-                <coaching-days-day day-id="[[routeData.dayId]]"></coaching-days-day>
+                <coaching-days-day day-id="[[routeData.dayId]]" user="[[user]]"></coaching-days-day>
             </template>
         `;
     }
@@ -95,6 +96,9 @@ class CoachingDays extends PolymerElement {
 
     _routeChanged(route) {
         console.log('route', route);
+        if (!route.path) {
+            this.set('routeData', {});
+        }
     }
 
     _routeDateChanged(routeData) {

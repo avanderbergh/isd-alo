@@ -126,7 +126,7 @@ class CoachingApp extends PolymerElement {
                 <coaching-dashboard name="dashboard"></coaching-dashboard>
                 <coaching-workshops name="workshops" user="[[user]]"></coaching-workshops>
                 <coaching-spaces name="spaces"></coaching-spaces>
-                <coaching-days name="days" route="[[subroute]]"></coaching-days>
+                <coaching-days name="days" route="[[subroute]]" user="[[user]]"></coaching-days>
                 <coaching-sessions name="sessions"></coaching-sessions>
                 <coaching-view404 name="view404"></coaching-view404>
               </iron-pages>

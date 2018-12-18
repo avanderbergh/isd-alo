@@ -2,7 +2,9 @@ import {
     PolymerElement,
     html
 } from '@polymer/polymer/polymer-element.js';
+import '@polymer/paper-button/paper-button.js'
 import {format} from 'date-fns';
+import './coaching-sessions.js';
 
 class CoachingDaysDay extends PolymerElement {
     static get properties() {
@@ -15,7 +17,8 @@ class CoachingDaysDay extends PolymerElement {
             displayDate: {
                 type: String,
                 computed: '_computeDisplayDate(day)'
-            }
+            },
+            user: Object
         }
     }
 
@@ -24,7 +27,9 @@ class CoachingDaysDay extends PolymerElement {
             <template is="dom-if" if="{{message}}">
                 <p>[[message]]</p>
             </template>
+            <a href="/days">Back</a>
             <h1>[[displayDate]]</h1>
+            <coaching-sessions day="[[day]]" user="[[user]]"></coaching-sessions>
         `;
     }
 
