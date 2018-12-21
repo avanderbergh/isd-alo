@@ -19,7 +19,7 @@ class CoachingDashboard extends PolymerElement {
       </style>
 
       <div class="card">
-        <coaching-days></coaching-days>
+        <h1>This App is still in Beta, please be gentle</h1>
       </div>
     `;
   }

@@ -30,12 +30,9 @@ class CoachingSpaces extends PolymerElement {
             </style>
 
             <h1>Spaces</h1>
-            <div> Space list: </div>
-            <dom-repeat items="{{spaces}}" as="space">
-                <template>
-                    <div>name: <span>{{space.name}}</span></div>
-                </template>                    
-            </dom-repeat>
+            <template is="dom-repeat" items="{{spaces}}" as="space">
+                <p>[[space.name]] ([[space.capacity]])</p>
+            </template>
             <coaching-spaces-new-space></coaching-spaces-new-space>    
 
         `;

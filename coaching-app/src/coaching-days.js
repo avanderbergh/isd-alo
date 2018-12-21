@@ -26,7 +26,7 @@ class CoachingDays extends PolymerElement {
             },
             routeData: {
                 type: Object,
-                observer: '_routeDateChanged'
+                observer: '_routeDataChanged'
             },
             user: Object
         };
@@ -101,7 +101,7 @@ class CoachingDays extends PolymerElement {
         }
     }
 
-    _routeDateChanged(routeData) {
+    _routeDataChanged(routeData) {
         console.log('routeData', routeData);
     }
 

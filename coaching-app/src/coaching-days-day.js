@@ -4,6 +4,7 @@ import {
 } from '@polymer/polymer/polymer-element.js';
 import '@polymer/paper-button/paper-button.js'
 import {format} from 'date-fns';
+import './coaching-sessions-new-session.js';
 import './coaching-sessions.js';
 
 class CoachingDaysDay extends PolymerElement {
@@ -18,7 +19,11 @@ class CoachingDaysDay extends PolymerElement {
                 type: String,
                 computed: '_computeDisplayDate(day)'
             },
-            user: Object
+            user: Object,
+            showNewSession: {
+                type: Boolean,
+                value: false
+            }
         }
     }
 
@@ -29,7 +34,10 @@ class CoachingDaysDay extends PolymerElement {
             </template>
             <a href="/days">Back</a>
             <h1>[[displayDate]]</h1>
-            <coaching-sessions day="[[day]]" user="[[user]]"></coaching-sessions>
+            <template is="dom-if" if="{{!showNewSession}}">
+                <coaching-sessions title="Sessions" day="[[day]]"></coaching-sessions>
+            </template>
+            <coaching-sessions-new-session show="{{showNewSession}}" day="[[day]]"></coaching-sessions-new-session>
         `;
     }
 
@@ -48,6 +56,7 @@ class CoachingDaysDay extends PolymerElement {
                 if (doc.exists) {
                     let day = doc.data();
                     day.__id__ = doc.id;
+                    console.log('Setting Day', day);
                     this.set('day', day);
                 } else {
                     this.message = "Day not Found"

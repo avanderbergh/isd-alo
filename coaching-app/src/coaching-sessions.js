@@ -4,9 +4,7 @@ import {
 } from '@polymer/polymer/polymer-element.js';
 
 import('./shared-styles.js');
-
 import('./coaching-sessions-session-card.js');
-import('./coaching-sessions-new-session.js');
 
 
 class CoachingSessions extends PolymerElement {
@@ -19,6 +17,7 @@ class CoachingSessions extends PolymerElement {
                 type: Array,
                 value: []
             },
+            title: String,
             user: Object
         };
     }
@@ -44,7 +43,7 @@ class CoachingSessions extends PolymerElement {
                 }
             </style>
 
-            <h1>Your Sessions</h1>
+            <h1>[[title]]</h1>
             <div id="sessionsContainer">
                 <dom-repeat items="{{sessions}}" as="session">
                     <template>
@@ -52,7 +51,6 @@ class CoachingSessions extends PolymerElement {
                     </template>          
                 </dom-repeat>
             </div>
-            <coaching-sessions-new-session></coaching-sessions-new-session>
         `;
     }
 
@@ -85,9 +83,9 @@ class CoachingSessions extends PolymerElement {
             .onSnapshot(querySnapshot => {
                 this.set('sessions', []);
                 querySnapshot.forEach(doc => {
-                    let space = doc.data();
-                    space.__id__ = doc.id;
-                    this.push('sessions', space)
+                    let session = doc.data();
+                    session.__id__ = doc.id;
+                    this.push('sessions', session)
                 })
         })
     }

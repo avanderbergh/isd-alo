@@ -12,3 +12,19 @@ admin.firestore().settings(settings);
 // exports.helloWorld = functions.https.onRequest((request, response) => {
 //  response.send("Hello from Firebase!");
 // });
+
+exports.attendSession = functions.https.onCall((data, context) => {
+    return new Promise((resolve, reject) => {
+        console.log(context);
+        console.log(data);
+        const uid = context.auth.uid;
+        const db = admin.firestore();
+        db.collection('sessions').doc(data.session).update({
+            attendees: admin.firestore.FieldValue.arrayUnion(uid)
+        }).then(result => {
+            resolve(result)
+        }).catch(error => {
+            reject(error)
+        })
+    })
+})

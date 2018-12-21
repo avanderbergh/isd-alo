@@ -37,14 +37,8 @@ class CoachingSpacesNewSpace extends PolymerElement {
             <paper-dialog id="new-space-dialog">
                 <h2>New space</h2>
                 <paper-input label="Name" value="{{formData.name}}"></paper-input>
-                <paper-dropdown-menu no-animations >
-                    <paper-listbox slot="dropdown-content"  selected="{{formData.capacity}}" attr-for-selected="id">
-                    <paper-item id="8">8</paper-item>
-                    <paper-item id="9">9</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-            </paper-dropdown-menu>
-                <paper-textarea label="Description" value="{{formData.description}}"></paper-textarea>
+                <paper-input label="Description" value="{{formData.description}}"></paper-input>
+                <paper-input label="Capacity" type="number" min="1" max="500" value="{{formData.capacity}}"></paper-input>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancel</paper-button>
                     <paper-button autofocus on-tap="_handleSubmitTapped">Submit</paper-button>

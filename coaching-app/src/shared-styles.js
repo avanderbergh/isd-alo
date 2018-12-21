@@ -35,16 +35,11 @@ $_documentContainer.innerHTML = `<dom-module id="shared-styles">
         line-height: 64px;
       }
 
-      h1 {
-        margin: 16px 0;
-        color: #212121;
-        font-size: 22px;
-      }
-
       paper-fab {
-        position: absolute;
-        bottom: 24px;
-        right: 24px;
+        background-color: var(--app-secondary-color);
+        position: fixed;
+        right: 25px;
+        bottom: 30px;
       }
     </style>
   </template>

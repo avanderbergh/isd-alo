@@ -45,8 +45,12 @@ class CoachingApp extends PolymerElement {
     return html `
       <style>
         :host {
-          --app-primary-color: #4285f4;
-          --app-secondary-color: black;
+          --app-primary-color: #ff1446;
+          --primary-color: #ff1446;
+
+          --app-secondary-color: #328ce6;
+          --secondary-color: #328ce6;
+          --accent-color: #328ce6;
 
           display: block;
         }
@@ -105,9 +109,7 @@ class CoachingApp extends PolymerElement {
                 <a name="dashboard" href="[[rootPath]]dashboard">Home</a>
                 <a name="workshops" href="[[rootPath]]workshops">Workshops</a>
                 <a name="spaces" href="[[rootPath]]spaces">Spaces</a>
-                <a name="days" href="[[rootPath]]days">Days</a>
-                <a name="sessions" href="[[rootPath]]sessions">Sessions</a>
-                
+                <a name="days" href="[[rootPath]]days">Days</a>                
               </iron-selector>
             </app-drawer>
 
@@ -240,7 +242,7 @@ class CoachingApp extends PolymerElement {
     // Set the firebase functions URL if the project is running locally
     if (window.location.hostname == 'localhost') {
       firebase.functions()._url = name => {
-        return `http://localhost:5001/isdcoaching/us-central1/${name}`
+        return `http://localhost:5000/isdcoaching-dev/us-central1/${name}`
       }
     }
   }

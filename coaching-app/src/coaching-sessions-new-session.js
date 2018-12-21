@@ -2,68 +2,136 @@ import {
     PolymerElement,
     html
 } from '@polymer/polymer/polymer-element.js';
-import './shared-styles.js';
+import '@polymer/iron-icons/iron-icons.js';
+import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-dialog/paper-dialog.js';
 import '@polymer/paper-fab/paper-fab.js';
-import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-input/paper-textarea.js';
-import '@polymer/iron-icons/iron-icons.js';
+import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
+import '@polymer/paper-item/paper-item.js';
+import '@polymer/paper-listbox/paper-listbox.js';
+import {format, addMinutes} from 'date-fns';
 
+import './shared-styles.js';
 import './date-time-picker.js'
 
 
 class CoachingSessionsNewSession extends PolymerElement {
     static get properties() {
         return {
+            day: Object,
             formData: {
                 type: Object,
                 value: {}
             },
-            fdtStart:{
-                type:String,
-                value:''
+            startTimes: {
+                type: Array,
+                value: []
             },
-            fdtEnd:{
-                type:String,
-                value:''
+            endTimes: {
+                type: Array,
+                value: []
             },
-            dateTimeFormData:{
-                type:Object,
-                value:{}
+            show: {
+                type: Boolean,
+                value: false,
+                notify: true
+            },
+            workshops: {
+                type: Array,
+                value: []
+            },
+
+            spaces: {
+                type: Array,
+                value: []
+            },
+
+            filteredSpaces: {
+                type: Array,
+                computed: '_computeFilteredSpaces(formData.capacity)'
             }
         }
+    }
+
+    static get observers() {
+        return [
+            '_dayChanged(day)',
+            '_startTimeChanged(formData.startTime)'
+        ]
     }
 
     static get template() {
         return html `
             <style include="shared-styles">
-                #new-session-dialog {
-                    width: 500px;
+                #newSession {
+                    background-color: #fff;
+                    border-radius: 5px;
+                    padding: 24px;
+                }
+                paper-item {
+                    cursor: pointer;
+                }
+
+                .buttons {
+                    position: relative;
+                    padding: 8px 8px 8px 24px;
+                    margin: 0;
+                    color: var(--paper-dialog-button-color, var(--primary-color));
+                    @apply --layout-horizontal;
+                    @apply --layout-end-justified;
                 }
             </style>
-                
-            <paper-fab icon="add" on-tap="_handleAddsessionTapped"></paper-fab>
-            <paper-dialog id="new-session-dialog">
-                <h2>New session</h2>
-                <paper-input label="title" value="{{formData.title}}"></paper-input>
-                
-                <!--<paper-input label="startTime" value="{{formData.startTime}}"></paper-input>
-                
-                <paper-textarea label="endTime" value="{{formData.endTime}}"></paper-textarea>
-                -->
-                <label>Start</label>
-                <date-time-picker date-time-format={{fdtStart}} form-data={{dateTimeFormData}}></date-time-picker>
-                <label>End</label>
-                <date-time-picker date-time-format={{fdtEnd}} form-data=[[dateTimeFormData]]></date-time-picker>
-                
-                <paper-textarea label="description" value="{{formData.description}}"></paper-textarea>
-                
-                <div class="buttons">
-                    <paper-button dialog-dismiss>Cancel</paper-button>
-                    <paper-button autofocus on-tap="_handleSubmitTapped">Submit</paper-button>
+            
+            <template is="dom-if" if="{{!show}}">
+                <paper-fab icon="add" on-tap="_handleAddSessionTapped"></paper-fab>
+            </template>
+            <template is="dom-if" if="{{show}}">
+                <div id="newSession">
+                    <h2>New session</h2>
+                    <paper-dropdown-menu label="Workshop">
+                        <paper-listbox slot="dropdown-content" selected="{{formData.workshop}}" attr-for-selected="workshop">
+                            <template is="dom-repeat" items="{{workshops}}" as="workshop">
+                                <paper-item workshop="[[workshop.__id__]]">[[workshop.title]]</paper-item>
+                            </template>
+                            <paper-item on-tap="_handleNewWorkshopTapped"> Create a new Workshop</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                    <paper-input label="Title" value="{{formData.title}}"></paper-input>
+                    <paper-textarea label="Description" value="{{formData.description}}"></paper-textarea>
+                    <div style="display: flex;">
+                        <paper-input label="Capacity" type="number" min="5" max="100" value="{{formData.capacity}}" style="width: 5rem; margin-right: 2rem;"></paper-input>
+                        <paper-dropdown-menu label="Select a Space">
+                            <paper-listbox slot="dropdown-content" selected="{{formData.space}}" attr-for-selected="space">
+                                <template is="dom-repeat" items="{{filteredSpaces}}" as="space">
+                                    <paper-item space="[[space.__id__]]">[[space.name]] ([[space.capacity]])</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
+                    <div>
+                        <paper-dropdown-menu label="Start Time">
+                            <paper-listbox slot="dropdown-content" selected="{{formData.startTime}}" attr-for-selected="date">
+                                <template is="dom-repeat" items="{{startTimes}}" as="startTime">
+                                    <paper-item date="[[startTime.date]]">[[startTime.display]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <paper-dropdown-menu label="End Time">
+                            <paper-listbox slot="dropdown-content" selected="{{formData.endTime}}" attr-for-selected="date">
+                                <template is="dom-repeat" items="{{endTimes}}" as="endTime">
+                                    <paper-item date="[[endTime.date]]">[[endTime.display]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
+                    <div class="buttons">
+                        <paper-button on-tap="_handleCancelTapped">Cancel</paper-button>
+                        <paper-button autofocus on-tap="_handleSubmitTapped">Submit</paper-button>
+                    </div>
                 </div>
-            </paper-dialog>
+            </template>
         `;
     }
 
@@ -73,27 +141,91 @@ class CoachingSessionsNewSession extends PolymerElement {
 
     ready() {
         super.ready();
+        this._fetchWorkshops();
+        this._fetchSpaces();
     }
 
-    _handleAddsessionTapped() {
-        this.shadowRoot.querySelector('#new-session-dialog').open();
+    _fetchWorkshops() {
+        const db = firebase.firestore();
+        const uid = firebase.auth().getUid();
+        db.collection('workshops').where('owner', '==', uid)
+            .onSnapshot(querySnapshot => {
+                this.set('workshops', []);
+                querySnapshot.forEach(doc => {
+                    let workshop = doc.data();
+                    workshop.__id__ = doc.id;
+                    this.push('workshops', workshop);
+                })
+            })
+    }
+
+    _fetchSpaces() {
+        const db = firebase.firestore();
+        db.collection('spaces').onSnapshot(querySnapshot => {
+            this.set('spaces', []);
+            querySnapshot.forEach(doc => {
+                let space = doc.data();
+                space.__id__ = doc.id;
+                this.push('spaces', space);
+            })
+        })
+    }
+
+    _handleAddSessionTapped() {
+        this.show = true;
     }
 
     _handleSubmitTapped() {
-        this.formData.owner = firebase.auth().getUid();
+        this.formData.presenters = [firebase.auth().getUid()];
         const db = firebase.firestore();
-        
-        const doc = Object.assign({}, this.formData, {
-            startTime: new Date(this.fdtStart),endTime:new Date(this.fdtEnd)
-          })
-
-          console.log(doc);
-        
-        db.collection('sessions').add(doc).then(() => {
+        db.collection('sessions').add(this.formData).then(() => {
             this.set('formData', {});
-            this.shadowRoot.querySelector('#new-session-dialog').close();
+            this.show = false;
         })
+    }
 
+    _handleCancelTapped() {
+        this.set('formData', {});
+        this.show = false;
+    }
+
+    _dayChanged(day) {
+        console.log('Day Changed', day);
+        if (day) {
+            if (day.hasOwnProperty('startTime') && day.hasOwnProperty('endTime')) {
+                const startTime = day.startTime.toDate();
+                const endTime = day.endTime.toDate();
+                let time = startTime;
+                this.set('startTimes', []);
+                while (time.getTime() < endTime.getTime()) {
+                    this.push('startTimes', {date: time, display: format(time, 'H:mm')})
+                    time = addMinutes(time, 15);
+                }
+            }
+        }
+    }
+
+    _startTimeChanged(startTime) {
+        if (startTime) {
+            let time = startTime;
+            this.set('endTimes', []);
+            while (time.getTime() < this.day.endTime.toDate().getTime()) {
+                time = addMinutes(time, 15);
+                this.push('endTimes', {date: time, display: format(time, 'H:mm')})
+            }
+        }
+    }
+
+    _computeFilteredSpaces(capacity) {
+        console.log('capacity changed', capacity);
+        return this.spaces.filter(el => {
+            return el.capacity >= capacity
+        })
+    }
+
+    _handleNewWorkshopTapped(){
+        window.history.pushState({}, 'ISD Coaching', "workshops/");
+        window.dispatchEvent(new CustomEvent('location-changed'));
     }
 }
 
