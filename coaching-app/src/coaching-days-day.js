@@ -6,6 +6,7 @@ import '@polymer/paper-button/paper-button.js'
 import {format} from 'date-fns';
 import './coaching-sessions-new-session.js';
 import './coaching-sessions.js';
+import './coaching-timeslot.js';
 
 class CoachingDaysDay extends PolymerElement {
     static get properties() {
@@ -23,8 +24,18 @@ class CoachingDaysDay extends PolymerElement {
             showNewSession: {
                 type: Boolean,
                 value: false
+            }, 
+            timeslots: {
+                type: Array,
+                value: []
             }
         }
+    }
+
+    static get observers() {
+        return [
+            '_dayChanged(day)'
+        ]
     }
 
     static get template() {
@@ -35,7 +46,9 @@ class CoachingDaysDay extends PolymerElement {
             <a href="/days">Back</a>
             <h1>[[displayDate]]</h1>
             <template is="dom-if" if="{{!showNewSession}}">
-                <coaching-sessions title="Sessions" day="[[day]]"></coaching-sessions>
+                <template is="dom-repeat" items="{{timeslots}}" as="timeslot">
+                    <coaching-timeslot timeslot="[[timeslot]]"></coaching-timeslot>
+                </template>
             </template>
             <coaching-sessions-new-session show="{{showNewSession}}" day="[[day]]"></coaching-sessions-new-session>
         `;
@@ -67,8 +80,21 @@ class CoachingDaysDay extends PolymerElement {
     _computeDisplayDate(day) {
         const start = day.startTime.toDate();
         const end = day.endTime.toDate();
-        const displayDate = format(start, 'dd MMM Y HH:mm') + ' - ' + format(end, 'HH:mm');
+        const displayDate = format(start, 'MMMM d');
         return displayDate;
+    }
+
+    _dayChanged(day) {
+        console.log('Day Changed', day);
+        const startTime = day.startTime.toMillis();
+        const endTime = day.endTime.toMillis();
+        let time = startTime;
+        this.set('timeslots', []);
+        while (time < endTime) {
+            console.log('time', new Date(time));
+            this.push('timeslots', {startTime: new Date(time), endTime: new Date(time + 900000)});
+            time += 900000;
+        }
     }
 }
 

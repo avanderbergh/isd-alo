@@ -9,6 +9,7 @@
     "@polymer/iron-pages": "^3.0.1",
     "@polymer/neon-animation": "^3.0.1",
     "@polymer/paper-button": "github:PolymerElements/paper-button",
+    "@polymer/paper-checkbox": "github:PolymerElements/paper-checkbox",
     "@polymer/paper-dialog": "github:polymerelements/paper-dialog",
     "@polymer/paper-dropdown-menu": "^3.0.1",
     "@polymer/paper-fab": "github:polymerelements/paper-fab",

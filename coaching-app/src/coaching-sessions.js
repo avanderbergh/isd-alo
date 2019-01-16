@@ -19,16 +19,14 @@ class CoachingSessions extends PolymerElement {
             },
             title: String,
             user: Object,
-            timeslots: {
-                type: Array,
-                value: []
-            }
+            timeslot: Object
         };
     }
 
     static get observers() {
         return [
-            '_dayChanged(day)'
+            '_dayChanged(day)',
+            '_timeslotChanged(timeslot)'
         ]
     }
 
@@ -55,17 +53,12 @@ class CoachingSessions extends PolymerElement {
                     </template>          
                 </dom-repeat>
             </div>
-            <div>
-                <template is="dom-repeat" items="{{timeslots}}" as="timeslot">
-                    <p>[[timeslot.startTime]] - [[timeslot.endTime]]</p>
-                </template>
-            </div>
         `;
     }
 
     ready() {
         super.ready();
-        if (!this.day) {
+        if (!this.day && !this.timeslot) {
             this._loadSessions();
         }
     }
@@ -75,7 +68,7 @@ class CoachingSessions extends PolymerElement {
         if (this.snapshotListener) this.snapshotListener();
     }
 
-    _loadSessions(day=null, user=null) {
+    _loadSessions(day=null, user=null, timeslot=null) {
         const db = firebase.firestore();
 
         let query = db.collection('sessions');
@@ -87,6 +80,12 @@ class CoachingSessions extends PolymerElement {
         if (user) {
             console.log('filtering by user')
             query = query.where('presenters', 'array-contains', user.uid)
+        }
+
+        if (timeslot) {
+            console.log('filtering by timeslot');
+            query = query.where('startTime', '>=', timeslot.startTime)
+                .where('startTime', '<', timeslot.endTime);
         }
         this.snapshotListener = query.orderBy('startTime')
             .onSnapshot(querySnapshot => {
@@ -101,17 +100,11 @@ class CoachingSessions extends PolymerElement {
 
     _dayChanged(day) {
         console.log('Day Changed', day);
-        this._loadSessions(day, this.user);
-        const startTime = day.startTime.toMillis();
-        const endTime = day.endTime.toMillis();
-        let time = startTime;
-        this.set('timeslots', []);
-        while (time < endTime) {
-            console.log('time', new Date(time));
-            this.push('timeslots', {startTime: new Date(time), endTime: new Date(time + 900000)});
-            time += 900000;
-        }
-        
+        this._loadSessions(day, this.user);        
+    }
+
+    _timeslotChanged(timeslot) {
+        this._loadSessions(null, this.user, timeslot);
     }
 
 }

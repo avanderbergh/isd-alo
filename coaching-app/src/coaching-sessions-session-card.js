@@ -1,4 +1,5 @@
 import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
+import '@polymer/paper-checkbox/paper-checkbox.js';
 import '@polymer/paper-button/paper-button.js';
 import {format} from 'date-fns';
 
@@ -33,30 +34,44 @@ class CoachingSessionsSessionCard extends PolymerElement {
         return html`
             <style include="shared-styles">
                 #sessionCard {
-                    width: 240px;
                     border-radius: 5px;
                     padding: 10px;
-                    margin: 12px;
-                    text-align: center;
                     color: #fff;
+                    margin-right: 10px;
                     background-color: var(--app-primary-color);
-                    cursor: pointer;
+                    display: flex;
+                    flex-direction: row;
+                }
+
+                #attending {
+                    border-right: 1px solid white;
+                }
+
+                #info {
+                    padding-left: 10px;
+                }
+
+                h3 {
+                    margin: 0px;
+                }
+
+                p {
+                    margin: 0px;
                 }
 
             </style>
             <div id="sessionCard">
-                <h1>[[workshop.title]]</h1>
-                <h2>[[session.title]]</h1>
-                <h3>[[displayTime]]</h2>
-                <template is="dom-repeat" items="{{presenters}}" as="presenter">
-                    <p>[[presenter.displayName]]</p>
-                </template>
-                <template is="dom-if" if="{{attending}}">
-                    <p>You're attending</p>
-                </template>
-                <template is="dom-if" if="{{!attending}}">
-                    <paper-button on-tap="_handleAttendSessionTapped">Attend</paper-button>
-                </template>
+                <div id="attending">
+                    <paper-checkbox on-checked-changed="_handleAttendChecked" checked="[[attending]]"></paper-checkbox>
+                </div>
+                <div id="info">
+                    <h3>[[workshop.title]]: [[session.title]] ([[displayTime]])</h3>
+                    <p>
+                        <template is="dom-repeat" items="{{presenters}}" as="presenter">
+                            [[presenter.displayName]]
+                        </template>
+                    </p>
+                </div>
             </div>
         `;
     }
@@ -119,6 +134,19 @@ class CoachingSessionsSessionCard extends PolymerElement {
                 this.push('presenters', user);
             })
         });
+    }
+
+    _handleAttendChecked(e) {
+        const value = e.detail.value;
+        if (value) {
+            firebase.functions().httpsCallable('attendSession')({
+                session: this.session.__id__
+            }).then(result => {
+                console.log(result);
+            })
+        } else {
+            console.log('Unattend Session');
+        }
     }
 }
 
