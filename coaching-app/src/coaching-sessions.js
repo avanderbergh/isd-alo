@@ -18,7 +18,11 @@ class CoachingSessions extends PolymerElement {
                 value: []
             },
             title: String,
-            user: Object
+            user: Object,
+            timeslots: {
+                type: Array,
+                value: []
+            }
         };
     }
 
@@ -50,6 +54,11 @@ class CoachingSessions extends PolymerElement {
                         <coaching-sessions-session-card session="[[session]]"></coaching-sessions-session-card>
                     </template>          
                 </dom-repeat>
+            </div>
+            <div>
+                <template is="dom-repeat" items="{{timeslots}}" as="timeslot">
+                    <p>[[timeslot.startTime]] - [[timeslot.endTime]]</p>
+                </template>
             </div>
         `;
     }
@@ -93,6 +102,16 @@ class CoachingSessions extends PolymerElement {
     _dayChanged(day) {
         console.log('Day Changed', day);
         this._loadSessions(day, this.user);
+        const startTime = day.startTime.toMillis();
+        const endTime = day.endTime.toMillis();
+        let time = startTime;
+        this.set('timeslots', []);
+        while (time < endTime) {
+            console.log('time', new Date(time));
+            this.push('timeslots', {startTime: new Date(time), endTime: new Date(time + 900000)});
+            time += 900000;
+        }
+        
     }
 
 }
