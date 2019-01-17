@@ -45,13 +45,14 @@ class CoachingSessionsSessionCard extends PolymerElement {
                     padding: 10px;
                     color: #fff;
                     margin-right: 10px;
+                    margin-bottom: 10px;
                     background-color: var(--app-primary-color);
                     display: flex;
                     flex-direction: row;
                 }
 
                 #attending {
-                    border-right: 1px solid white;
+                    border-right: 1px solid var(--google-grey-500);
                     width: 40px;
                 }
 
@@ -65,6 +66,10 @@ class CoachingSessionsSessionCard extends PolymerElement {
 
                 p {
                     margin: 0px;
+                }
+
+                paper-spinner-lite {
+                    --paper-spinner-color: #fff;
                 }
 
             </style>

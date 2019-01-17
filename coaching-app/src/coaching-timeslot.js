@@ -29,6 +29,7 @@ class CoachingTimeslot extends PolymerElement {
                     width: 50px;
                     min-width: 50px;
                     border-right: 1px solid;
+                    color: var(--google-grey-500);
                 }
 
                 #sessions {
