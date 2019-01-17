@@ -17,7 +17,7 @@
     "@polymer/paper-input": "github:polymerelements/paper-input",
     "@polymer/paper-item": "^3.0.1",
     "@polymer/paper-listbox": "^3.0.1",
-    "@polymer/paper-spinner": "^3.0.1",
+    "@polymer/paper-spinner": "github:PolymerElements/paper-spinner",
     "@polymer/polymer": "^3.0.0",
     "@vaadin/vaadin-date-picker": "^3.3.2",
     "@vaadin/vaadin-time-picker": "^1.1.1",

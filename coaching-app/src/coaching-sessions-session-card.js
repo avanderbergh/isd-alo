@@ -1,6 +1,9 @@
 import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
 import '@polymer/paper-checkbox/paper-checkbox.js';
 import '@polymer/paper-button/paper-button.js';
+import '@polymer/paper-icon-button/paper-icon-button.js';
+import '@polymer/iron-icons/iron-icons.js';
+import '@polymer/paper-spinner/paper-spinner-lite.js';
 import {format} from 'date-fns';
 
 import './shared-styles.js';
@@ -19,6 +22,10 @@ class CoachingSessionsSessionCard extends PolymerElement {
             attending: {
                 type: Boolean,
                 computed: '_computeAttending(session)'
+            },
+            attendingLoading: {
+                type: Boolean,
+                value: false
             },
             presenters: Array
         }
@@ -45,6 +52,7 @@ class CoachingSessionsSessionCard extends PolymerElement {
 
                 #attending {
                     border-right: 1px solid white;
+                    width: 40px;
                 }
 
                 #info {
@@ -62,7 +70,17 @@ class CoachingSessionsSessionCard extends PolymerElement {
             </style>
             <div id="sessionCard">
                 <div id="attending">
-                    <paper-checkbox on-checked-changed="_handleAttendChecked" checked="[[attending]]"></paper-checkbox>
+                    <template is="dom-if" if="{{attendingLoading}}">
+                        <paper-spinner-lite active></paper-spinner-lite>
+                    </template>
+                    <template is="dom-if" if="{{!attendingLoading}}">
+                        <template is="dom-if" if="{{!attending}}">
+                            <paper-icon-button icon="check-box-outline-blank" on-tap="_handleAttendSessionTapped"></paper-icon-button>
+                        </template>
+                        <template is="dom-if" if="{{attending}}">
+                            <paper-icon-button icon="check-box" on-tap="_handleUnattendSessionTapped"></paper-icon-button>
+                        </template>                    
+                    </template>
                 </div>
                 <div id="info">
                     <h3>[[workshop.title]]: [[session.title]] ([[displayTime]])</h3>
@@ -109,10 +127,24 @@ class CoachingSessionsSessionCard extends PolymerElement {
     }
 
     _handleAttendSessionTapped() {
+        this.attendingLoading = true;
         firebase.functions().httpsCallable('attendSession')({
             session: this.session.__id__
         }).then(result => {
             console.log(result);
+            this.attending = true;
+            this.attendingLoading = false;
+        })
+    }
+
+    _handleUnattendSessionTapped() {
+        this.attendingLoading = true;
+        firebase.functions().httpsCallable('unattendSession')({
+            session: this.session.__id__
+        }).then(result => {
+            console.log(result);
+            this.attending = false;
+            this.attendingLoading = false;
         })
     }
 
@@ -134,19 +166,6 @@ class CoachingSessionsSessionCard extends PolymerElement {
                 this.push('presenters', user);
             })
         });
-    }
-
-    _handleAttendChecked(e) {
-        const value = e.detail.value;
-        if (value) {
-            firebase.functions().httpsCallable('attendSession')({
-                session: this.session.__id__
-            }).then(result => {
-                console.log(result);
-            })
-        } else {
-            console.log('Unattend Session');
-        }
     }
 }
 

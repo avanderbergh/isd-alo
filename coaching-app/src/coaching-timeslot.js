@@ -27,6 +27,7 @@ class CoachingTimeslot extends PolymerElement {
 
                 #display-time {
                     width: 50px;
+                    min-width: 50px;
                     border-right: 1px solid;
                 }
 
