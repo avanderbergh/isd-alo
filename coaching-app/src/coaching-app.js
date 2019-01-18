@@ -31,6 +31,7 @@ import './coaching-icons.js';
 import './coaching-auth.js';
 import './coaching-landing-page.js';
 import './coaching-user-menu.js';
+import './coaching-session-detail.js';
 
 // Gesture events like tap and track generated from touch will not be
 // preventable, allowing for better scrolling performance.
@@ -129,7 +130,7 @@ class CoachingApp extends PolymerElement {
                 <coaching-workshops name="workshops" user="[[user]]"></coaching-workshops>
                 <coaching-spaces name="spaces"></coaching-spaces>
                 <coaching-days name="days" route="[[subroute]]" user="[[user]]"></coaching-days>
-                <coaching-sessions name="sessions"></coaching-sessions>
+                <coaching-session-detail name="sessions" route="[[subroute]]" user="[[user]]"></coaching-session-detail>
                 <coaching-view404 name="view404"></coaching-view404>
               </iron-pages>
             </app-header-layout>

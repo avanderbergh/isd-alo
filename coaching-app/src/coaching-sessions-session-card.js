@@ -64,6 +64,15 @@ class CoachingSessionsSessionCard extends PolymerElement {
                     margin: 0px;
                 }
 
+                a {
+                    color: #fff;
+                    text-decoration: none;
+                }
+
+                a:visited {
+                    color: #fff;
+                }
+
                 p {
                     margin: 0px;
                 }
@@ -88,7 +97,9 @@ class CoachingSessionsSessionCard extends PolymerElement {
                     </template>
                 </div>
                 <div id="info">
-                    <h3>[[workshop.title]]: [[session.title]] ([[displayTime]])</h3>
+                    <a href="/sessions/[[session.__id__]]">
+                        <h3>[[workshop.title]]: [[session.title]] ([[displayTime]])</h3>
+                    </a>
                     <p>
                         <template is="dom-repeat" items="{{presenters}}" as="presenter">
                             [[presenter.displayName]]

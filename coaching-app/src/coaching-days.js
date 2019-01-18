@@ -36,9 +36,8 @@ class CoachingDays extends PolymerElement {
         return html `
             <style include="shared-styles">
                 :host {
-                display: block;
-
-                padding: 10px;
+                    display: block;
+                    padding: 10px;
                 }
 
                 #day-container {
