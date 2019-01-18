@@ -4,13 +4,18 @@ import '@polymer/app-route/app-route.js';
 class CoachingSessionDetail extends PolymerElement {
     static get properties() {
         return {
+            attendees: Array,
             route: Object,
             routeData: {
                 type: Object,
                 observer: '_routeDataChanged'
             },
-            session: Object,
-            user: Object
+            session: {
+                type: Object,
+                observer: '_sessionChanged'
+            },
+            user: Object,
+            workshop: Object
         }
     }
 
@@ -26,8 +31,16 @@ class CoachingSessionDetail extends PolymerElement {
             </app-route>
 
             <div id="session-container">
-                <h1>[[session.title]]</h1>
+                <h1>[[workshop.title]]</h1>
+                <h2>[[session.title]]</h2>
+                <p>Location: [[space.name]]</p>
                 <p>[[session.description]]</p>
+                <div>
+                    <h3>Attendees ([[attendees.length]])</h3>
+                    <template is="dom-repeat" items="{{attendees}}" as="attendee">
+                        <p>[[attendee.displayName]]</p>
+                    </template>
+                </div>
             </div>
 
         `;
@@ -51,6 +64,29 @@ class CoachingSessionDetail extends PolymerElement {
                 session.__id__ = doc.id;
                 this.set('session', session);
             })
+        }
+    }
+
+    _sessionChanged(session) {
+        if (session) {
+            const db = firebase.firestore();
+            db.collection('workshops').doc(session.workshop).get().then(doc => {
+                const workshop = doc.data();
+                this.set('workshop', workshop);
+            });
+            db.collection('spaces').doc(session.space).get().then(doc => {
+                const space = doc.data();
+                this.set('space', space);
+            })
+            if (session.hasOwnProperty('attendees')) {
+                this.set('attendees', []);
+                session.attendees.forEach(attendeeId => {
+                    db.collection('users').doc(attendeeId).get().then(doc => {
+                        let user = doc.data();
+                        this.push('attendees', user);
+                    })
+                })
+            }
         }
     }
 }
