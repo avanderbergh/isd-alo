@@ -43,20 +43,28 @@ exports.attendSession = functions.https.onCall((data, context) => {
                         // Existing Session falls inside the session
                         if (existingSession.startTime.toMillis() >= sessionToAttend.startTime.toMillis() && existingSession.endTime.toMillis() <= sessionToAttend.endTime.toMillis()) {
                             overlap = true;
+                            return;
                         }
-                    })
+                    });
                     if (!overlap) {
                         db.collection('sessions').doc(data.session).update({
                             attendees: admin.firestore.FieldValue.arrayUnion(uid)
                         }).then(result => {
                             resolve(true)
+                            return
                         }).catch(error => {
                             reject(error)
                         })
                     } else {
                         resolve(false);
                     }
+                    return;
+                }).catch(err => {
+                    console.error(err);
                 })
+                return;
+        }).catch(err => {
+            console.error(err);
         })
     })
 })
@@ -68,7 +76,8 @@ exports.unattendSession = functions.https.onCall((data, context) => {
         db.collection('sessions').doc(data.session).update({
             attendees: admin.firestore.FieldValue.arrayRemove(uid)
         }).then(result => {
-            resolve(result)
+            resolve(result);
+            return
         }).catch(error => {
             reject(error);
         })
