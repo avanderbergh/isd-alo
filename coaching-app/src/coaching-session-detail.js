@@ -59,10 +59,13 @@ class CoachingSessionDetail extends PolymerElement {
         if (sessionId) {
             const db = firebase.firestore();
             db.collection('sessions').doc(sessionId).get().then(doc => {
-                console.log('doc', doc);
-                let session = doc.data();
-                session.__id__ = doc.id;
-                this.set('session', session);
+                if (doc.exists) {
+                    let session = doc.data();
+                    session.__id__ = doc.id;
+                    this.set('session', session);
+                } else {
+                    this.set('session', null);
+                }
             })
         }
     }

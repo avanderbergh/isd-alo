@@ -27,7 +27,11 @@ class CoachingSessionsSessionCard extends PolymerElement {
                 type: Boolean,
                 value: false
             },
-            presenters: Array
+            presenters: Array,
+            sessionFull: {
+                type: Boolean,
+                computed: '_computeFull(session)'
+            }
         }
     }
 
@@ -89,7 +93,12 @@ class CoachingSessionsSessionCard extends PolymerElement {
                     </template>
                     <template is="dom-if" if="{{!attendingLoading}}">
                         <template is="dom-if" if="{{!attending}}">
-                            <paper-icon-button icon="check-box-outline-blank" on-tap="_handleAttendSessionTapped"></paper-icon-button>
+                            <template is="dom-if" if="{{sessionFull}}">
+                                Full!
+                            </template>
+                            <template is="dom-if" if="{{!sessionFull}}">
+                                <paper-icon-button icon="check-box-outline-blank" on-tap="_handleAttendSessionTapped"></paper-icon-button>
+                            </template>
                         </template>
                         <template is="dom-if" if="{{attending}}">
                             <paper-icon-button icon="check-box" on-tap="_handleUnattendSessionTapped"></paper-icon-button>
@@ -174,14 +183,22 @@ class CoachingSessionsSessionCard extends PolymerElement {
     }
 
     _fetchPresenters(session) {
-        this.set('presenters', []);
         session.presenters.forEach(presenter => {
             const db = firebase.firestore();
             db.collection('users').doc(presenter).get().then(doc => {
+                this.set('presenters', []);
                 let user = doc.data();
                 this.push('presenters', user);
             })
         });
+    }
+
+    _computeFull(session) {
+        if (!session.hasOwnProperty('attendees')) {
+            return false;
+        } else {
+            return session.attendees.length >= session.capacity
+        }
     }
 }
 
