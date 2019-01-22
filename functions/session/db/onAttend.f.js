@@ -33,12 +33,12 @@ exports.attendSession = functions.https.onCall((data, context) => {
                         // Session starts during another session
                         if (sessionToAttend.startTime.toMillis() >= existingSession.startTime.toMillis() && sessionToAttend.startTime.toMillis() < existingSession.endTime.toMillis()) {
                             overlap = true;
-                            return;
+                            retoverlap;
                         }
                         // Session ends during another session
                         if (sessionToAttend.endTime.toMillis() > existingSession.startTime.toMillis() && sessionToAttend.endTime.toMillis() <= existingSession.endTime.toMillis()) {
                             overlap = true;
-                            return;
+                            ;
                         }
                         // Session falls inside existing session
                         if (sessionToAttend.startTime.toMillis() > existingSession.startTime.toMillis() && sessionToAttend.endTime.toMillis() < existingSession.endTime.toMillis()) {
@@ -64,6 +64,6 @@ exports.attendSession = functions.https.onCall((data, context) => {
                 })
         })
     })
-})
+
 */
 
