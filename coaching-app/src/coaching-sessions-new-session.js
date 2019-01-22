@@ -51,6 +51,10 @@ class CoachingSessionsNewSession extends PolymerElement {
             filteredSpaces: {
                 type: Array,
                 computed: '_computeFilteredSpaces(formData.capacity)'
+            },
+            formValid: {
+                type: Boolean,
+                computed: '_computeFormValid(formData.*)'
             }
         }
     }
@@ -58,7 +62,8 @@ class CoachingSessionsNewSession extends PolymerElement {
     static get observers() {
         return [
             '_dayChanged(day)',
-            '_startTimeChanged(formData.startTime)'
+            '_startTimeChanged(formData.startTime)',
+            '_endTimeChanged(formData.endTime)'
         ]
     }
 
@@ -100,16 +105,6 @@ class CoachingSessionsNewSession extends PolymerElement {
                     </paper-dropdown-menu>
                     <paper-input label="Title" value="{{formData.title}}"></paper-input>
                     <paper-textarea label="Description" value="{{formData.description}}"></paper-textarea>
-                    <div style="display: flex;">
-                        <paper-input label="Capacity" type="number" min="5" max="100" value="{{formData.capacity}}" style="width: 5rem; margin-right: 2rem;"></paper-input>
-                        <paper-dropdown-menu label="Select a Space">
-                            <paper-listbox slot="dropdown-content" selected="{{formData.space}}" attr-for-selected="space">
-                                <template is="dom-repeat" items="{{filteredSpaces}}" as="space">
-                                    <paper-item space="[[space.__id__]]">[[space.name]] ([[space.capacity]])</paper-item>
-                                </template>
-                            </paper-listbox>
-                        </paper-dropdown-menu>
-                    </div>
                     <div>
                         <paper-dropdown-menu label="Start Time">
                             <paper-listbox slot="dropdown-content" selected="{{formData.startTime}}" attr-for-selected="date">
@@ -126,9 +121,21 @@ class CoachingSessionsNewSession extends PolymerElement {
                             </paper-listbox>
                         </paper-dropdown-menu>
                     </div>
+                    <div style="display: flex;">
+                        <paper-input label="Capacity" type="number" min="5" max="100" value="{{formData.capacity}}" style="width: 5rem; margin-right: 2rem;"></paper-input>
+                        <paper-dropdown-menu label="Select a Space">
+                            <paper-listbox slot="dropdown-content" selected="{{formData.space}}" attr-for-selected="space">
+                                <template is="dom-repeat" items="{{filteredSpaces}}" as="space">
+                                    <paper-item space="[[space.__id__]]">[[space.name]] ([[space.capacity]])</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
                     <div class="buttons">
                         <paper-button on-tap="_handleCancelTapped">Cancel</paper-button>
-                        <paper-button autofocus on-tap="_handleSubmitTapped">Submit</paper-button>
+                        <template is="dom-if" if="{{formValid}}">
+                            <paper-button autofocus on-tap="_handleSubmitTapped">Submit</paper-button>
+                        </template>
                     </div>
                 </div>
             </template>
@@ -142,7 +149,6 @@ class CoachingSessionsNewSession extends PolymerElement {
     ready() {
         super.ready();
         this._fetchWorkshops();
-        this._fetchSpaces();
     }
 
     _fetchWorkshops() {
@@ -159,16 +165,29 @@ class CoachingSessionsNewSession extends PolymerElement {
             })
     }
 
-    _fetchSpaces() {
+    _fetchSpaces(startTime, endTime) {
         const db = firebase.firestore();
-        db.collection('spaces').onSnapshot(querySnapshot => {
-            this.set('spaces', []);
-            querySnapshot.forEach(doc => {
-                let space = doc.data();
-                space.__id__ = doc.id;
-                this.push('spaces', space);
+        db.collection('sessions')
+            .where('endTime', '>', startTime)
+            .get().then(querySnapshot => {
+                let usedSpaces = [];
+                querySnapshot.forEach(doc => {
+                    const session = doc.data();
+                    if (session.startTime.toDate() < endTime) usedSpaces.push(session.space);
+                });
+                console.log('Used Spaces', usedSpaces);
+                db.collection('spaces').get().then(querySnapshot => {
+                    this.set('spaces', []);
+                    querySnapshot.forEach(doc => {
+                        let space = doc.data();
+                        space.__id__ = doc.id;
+                        if (!usedSpaces.includes(space.__id__)) {
+                            console.log('Unsed space', space.name)
+                            this.push('spaces', space);
+                        }
+                    })
+                })
             })
-        })
     }
 
     _handleAddSessionTapped() {
@@ -216,16 +235,30 @@ class CoachingSessionsNewSession extends PolymerElement {
         }
     }
 
+    _endTimeChanged(endTime) {
+        if (endTime) {
+            this._fetchSpaces(this.formData.startTime, endTime);
+            this.set('formData.capacity', null);
+        }
+    }
+
     _computeFilteredSpaces(capacity) {
-        console.log('capacity changed', capacity);
-        return this.spaces.filter(el => {
-            return el.capacity >= capacity
-        })
+        this.set('formData.space', null);
+        if (capacity) {
+            return this.spaces.filter(el => {
+                return el.capacity >= capacity
+            })
+        } else return [];
     }
 
     _handleNewWorkshopTapped(){
         window.history.pushState({}, 'ISD Coaching', "workshops/");
         window.dispatchEvent(new CustomEvent('location-changed'));
+    }
+
+    _computeFormValid(formData) {
+        console.log('computing form valid', formData);
+        return this.formData.workshop && this.formData.title && this.formData.description && this.formData.startTime && this.formData.endTime && this.formData.capacity && this.formData.space
     }
 }
 
