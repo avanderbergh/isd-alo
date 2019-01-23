@@ -115,7 +115,7 @@ exports = module.exports = functions.auth.user().onCreate((user) => {
     })
 
 })
-
+/* get teh claim */
 function getClaim(uid){
     return new Promise(
         (resolve, reject) => {
