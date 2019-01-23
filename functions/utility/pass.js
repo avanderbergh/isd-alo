@@ -1,11 +1,16 @@
 const functions = require('firebase-functions');
 const endPointUrl = 'https://3sys.isdedu.de/Wcbs.API.2.2/api/';
+
 var fetch = require("fetch-retry");
 require('url-search-params-polyfill');
 
 
 module.exports =  {
+    /***************************************************************
+     * retrieves the authentication token 
+     ***************************************************************/
     wcbs22_get_token: function(){
+
         queryUrl = endPointUrl+'token';
         const params = new URLSearchParams();
                 //var params = new URLSearchParams();
@@ -19,8 +24,19 @@ module.exports =  {
             method:"POST"
             };
 
-        return this.queryAPI(queryUrl,queryParams,"token");
+        return this.queryAPI(queryUrl,queryParams,"token") // this is a promise
+        
 
+    },
+
+    /***************************************************************
+     * prepare th query authentication token 
+     ***************************************************************/
+
+
+    wcbs22_prepare_token_query: function(){
+    
+        return endPointUrl+'token';
     },
 
     wcbs22_prepare_query: function(params){
@@ -34,34 +50,33 @@ module.exports =  {
     
         return endPointUrl+'schools(1)/'+params.endpoint+'?'+query;
   },
-  /* ***********************************
-Function to query an API
-util.queryAPI(endPointUrl+'token',otherParams,"token");
-************************************/
+    /* ***********************************
+    Function to query an API
+    util.queryAPI(endPointUrl+'token',otherParams,"token");
+    ************************************/
     queryAPI: function(url,params,desc){ 
         
-
-    return new Promise((resolve) => fetch(url,params,{
-      retries: 3,
-      retryDelay: 1000
-    })
-    // eslint-disable-next-line consistent-return
-    .then((res) => {
-      console.log(desc+": HEADERS "+ res.headers.get("content-type")); 
-      // eslint-disable-next-line promise/always-return
-      if (res.headers.get("content-type") !== null){
-          if (res.headers.get("content-type").includes("application/json")){
-            output = res.json();
-          }
-          else if (res.headers.get("content-type") === "image/jpeg") {
-            output = res.buffer(); // binary data in full
-          }
-      else {
-        console.log (res);
-      }
-      //console.log(output);
-      return output;
-    }})
-    .then((result) => resolve(result)));
+        return new Promise((resolve) => fetch(url,params,{
+            retries: 3,
+            retryDelay: 1000
+            })
+        // eslint-disable-next-line consistent-return
+        .then((res) => {
+        //console.log(desc+": HEADERS "+ res.headers.get("content-type")); 
+        // eslint-disable-next-line promise/always-return
+        if (res.headers.get("content-type") !== null){
+            if (res.headers.get("content-type").includes("application/json")){
+                output = res.json();
+            }
+            else if (res.headers.get("content-type") === "image/jpeg") {
+                output = res.buffer(); // binary data in full
+            }
+        else {
+            //console.log (res);
+        }
+        //console.log(output);
+        return output;
+        }})
+        .then((result) => resolve(result)));
   }
 }
