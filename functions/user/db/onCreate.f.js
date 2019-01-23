@@ -122,19 +122,19 @@ function getClaim(uid){
         
     admin.auth().getUser(uid).then((userRecord) => {
         // The claims can be accessed on the user record.
-        try{
-            resolve(console.log(userRecord.customClaims.staff));
-        }
-        catch(err){
-            resolve(console.log("No Roles Defined"));
-        }
+
+        staff = (typeof userRecord.customClaims.staff !== 'undefined') ? true : false;
+        student = (typeof userRecord.customClaims.student !== 'undefined') ? true : false;
+
+        console.log("Staff :"+staff);
+        console.log("Student :"+student);
+
+        resolve()
         return
 
       })
-      .catch(error => {
-        console.log(error);
-        });
-})
+      .catch(error => {console.log(error);});
+    })
 }
 
 function setClaim(user, customClaims){
