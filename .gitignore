@@ -67,5 +67,6 @@ node_modules/
 .DS_Store
 
 serviceAccountKey.json
+.runtimeconfig.json
 
 
