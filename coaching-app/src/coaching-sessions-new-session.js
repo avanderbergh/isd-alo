@@ -11,6 +11,7 @@ import '@polymer/paper-input/paper-textarea.js';
 import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 import '@polymer/paper-item/paper-item.js';
 import '@polymer/paper-listbox/paper-listbox.js';
+import '@polymer/paper-checkbox/paper-checkbox.js';
 import {format, addMinutes} from 'date-fns';
 
 import './shared-styles.js';
@@ -23,7 +24,9 @@ class CoachingSessionsNewSession extends PolymerElement {
             day: Object,
             formData: {
                 type: Object,
-                value: {}
+                value: {
+                    grades: []
+                }
             },
             startTimes: {
                 type: Array,
@@ -51,6 +54,10 @@ class CoachingSessionsNewSession extends PolymerElement {
             filteredSpaces: {
                 type: Array,
                 computed: '_computeFilteredSpaces(formData.capacity)'
+            },
+            grades: {
+                type: Array,
+                value: [6, 7, 8, 9, 10, 11, 12]
             }
         }
     }
@@ -82,6 +89,15 @@ class CoachingSessionsNewSession extends PolymerElement {
                     @apply --layout-horizontal;
                     @apply --layout-end-justified;
                 }
+
+                paper-checkbox {
+                    margin-right: 10px;
+                }
+
+                .form-label {
+                    color: var(--google-grey-700);
+                    font-weight: 300;
+                }
             </style>
             
             <template is="dom-if" if="{{!show}}">
@@ -100,6 +116,12 @@ class CoachingSessionsNewSession extends PolymerElement {
                     </paper-dropdown-menu>
                     <paper-input label="Title" value="{{formData.title}}"></paper-input>
                     <paper-textarea label="Description" value="{{formData.description}}"></paper-textarea>
+                    <div>
+                        <p><span class="form-label">Which grade levels can attend this session?</span></p>
+                        <template is="dom-repeat" items="{{grades}}" as="grade">
+                            <paper-checkbox data-grade$="[[grade]]" on-checked-changed="_gradeChecked">Grade [[grade]]</paper-checkbox>
+                        </template>
+                    </div>
                     <div style="display: flex;">
                         <paper-input label="Capacity" type="number" min="5" max="100" value="{{formData.capacity}}" style="width: 5rem; margin-right: 2rem;"></paper-input>
                         <paper-dropdown-menu label="Select a Space">
@@ -226,6 +248,17 @@ class CoachingSessionsNewSession extends PolymerElement {
     _handleNewWorkshopTapped(){
         window.history.pushState({}, 'ISD Coaching', "workshops/");
         window.dispatchEvent(new CustomEvent('location-changed'));
+    }
+
+    _gradeChecked(e) {
+        const grade = e.target.dataset.grade;
+        const value = e.detail.value;
+        if (value) {
+            this.push('formData.grades', parseInt(grade));
+        } else {
+            const index = this.formData.grades.indexOf(grade);
+            this.splice('formData.grades', index, 1);
+        }
     }
 }
 
