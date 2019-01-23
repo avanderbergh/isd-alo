@@ -127,16 +127,6 @@ class CoachingSessionsNewSession extends PolymerElement {
                             <paper-checkbox data-grade$="[[grade]]" on-checked-changed="_gradeChecked">Grade [[grade]]</paper-checkbox>
                         </template>
                     </div>
-                    <div style="display: flex;">
-                        <paper-input label="Capacity" type="number" min="5" max="100" value="{{formData.capacity}}" style="width: 5rem; margin-right: 2rem;"></paper-input>
-                        <paper-dropdown-menu label="Select a Space">
-                            <paper-listbox slot="dropdown-content" selected="{{formData.space}}" attr-for-selected="space">
-                                <template is="dom-repeat" items="{{filteredSpaces}}" as="space">
-                                    <paper-item space="[[space.__id__]]">[[space.name]] ([[space.capacity]])</paper-item>
-                                </template>
-                            </paper-listbox>
-                        </paper-dropdown-menu>
-                    </div>
                     <div>
                         <paper-dropdown-menu label="Start Time">
                             <paper-listbox slot="dropdown-content" selected="{{formData.startTime}}" attr-for-selected="date">
@@ -290,7 +280,7 @@ class CoachingSessionsNewSession extends PolymerElement {
 
     _computeFormValid(formData) {
         console.log('computing form valid', formData);
-        return this.formData.workshop && this.formData.title && this.formData.description && this.formData.startTime && this.formData.endTime && this.formData.capacity && this.formData.space
+        return this.formData.workshop && this.formData.title && this.formData.description && this.formData.startTime && this.formData.endTime && this.formData.capacity && this.formData.space && this.formData.grades.length
     }
     
     _gradeChecked(e) {
