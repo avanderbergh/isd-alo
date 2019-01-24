@@ -23,11 +23,11 @@ try { db.settings({timestampsInSnapshots:true}) } catch (e) { console.log(e) }
 
 /* test locally with 
 firebase functions:shell
-userDbOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de'})
-userDbOnCreate({ displayName: 'Ellie De Borde', email: 'el53de17@isdedu.de'})
+userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de'})
+userAuthOnCreate({ displayName: 'Ellie De Borde', email: 'el53de17@isdedu.de'})
 
 dev
- userDbOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de', uid: 'YKMJqP0cJbPSOdZzR67w3iIZAbq2'})
+ userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de', uid: 'YKMJqP0cJbPSOdZzR67w3iIZAbq2'})
 
 0eMZQoJNsedZVhbPxBKoeGBzLL12
 */
