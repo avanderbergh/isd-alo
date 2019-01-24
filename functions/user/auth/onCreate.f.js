@@ -13,6 +13,7 @@ try { admin.initializeApp(
 var db = admin.firestore();
 try { db.settings({timestampsInSnapshots:true}) } catch (e) { console.log(e) }
 
+var ref = db.collection("users");
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -27,8 +28,8 @@ userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de'}
 userAuthOnCreate({ displayName: 'Ellie De Borde', email: 'el53de17@isdedu.de'})
 
 dev
- userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de', uid: 'YKMJqP0cJbPSOdZzR67w3iIZAbq2'})
-
+ userAuthOnCreate({ displayName: 'Ellie De Borde', email: 'el53de17@isdedu.de', uid: 'oRomhD1EiRcVoW6LRUdTZuec7Ey2'})
+ userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de', uid: 'cxKq1XSEyZcXmedglJoHFE5LxD73'})
 0eMZQoJNsedZVhbPxBKoeGBzLL12
 */
 
@@ -44,23 +45,7 @@ const util = require('../../utility/pass.js');
 exports = module.exports = functions.auth.user().onCreate((user) => {
     return new Promise(
         (resolve, reject) => {
-        
-            queryUrl = util.wcbs22_prepare_token_query();
-
-            const params = new URLSearchParams();
-                    //var params = new URLSearchParams();
-            params.append('grant_type','client_credentials');
-            params.append('client_id',functions.config().wcbs22.id);
-            params.append('client_secret',functions.config().wcbs22.secret);
-
-            queryParams={
-                headers:{'User-Agent':'isd-sync-services'},
-                body:params,
-                method:"POST"
-                };
-
-            util.queryAPI(queryUrl,queryParams,"token")
-
+            util.wcbs22_get_token()
             .then((auth)=>{
                 
                 queryParams={ headers:{'Authorization':'Bearer ' +auth.access_token, 
@@ -69,6 +54,7 @@ exports = module.exports = functions.auth.user().onCreate((user) => {
 
                 studentQueryUrl = util.wcbs22_prepare_query({
                     endpoint: "Pupils",
+                    expand: "Form($select = Code)",
                     filter: "Name/EmailAddress eq '"+user.email+"' and Form/AcademicYear eq 2018",
                     select: "NameId"}); // prepare query
 
@@ -89,28 +75,41 @@ exports = module.exports = functions.auth.user().onCreate((user) => {
             .then((results) => {
 
                 if (results[0].value.length >=1)
-                    { userType = {type : 'student', id: results[0].value[0].NameId} }
+                    { userType = {type : 'student', 
+                                  id: results[0].value[0].NameId,
+                                  form: results[0].value[0].Form.Code}}
             
                 else if (results[1].value.length >=1)
-                    { userType = {type : 'staff', id: results[1].value[0].Name.Id} }
+                    { userType = {type : 'staff', 
+                                  id: results[1].value[0].Name.Id} }
                 
                 return userType
             })
-            .then((userType) =>{
+            .then(() =>{
                 // process userType
+
                 console.log("Existing Roles");
                 return getClaim(user.uid)
             })
             .then((res) =>{
                 console.log(userType);
-
-                //console.log(user.uid);
-            
                 const customClaims = { [userType.type]: true };
-                // Set custom user claims on this newly created user.
-                setClaim(user, customClaims)
-                resolve(userType);
-                return
+                setClaim(user, customClaims); // Set custom user claims on this newly created user.
+                return userType;
+            })
+            .then((userType)=>{
+                var promises = [];
+                const photo = insertUserPhoto(user.uid,userType.id);
+                promises.push(photo);
+                if (userType.type === "student")
+                {
+                    const form = insertStudentForm(user.uid,userType);
+                    promises.push(form); 
+                }
+                return Promise.all(promises);
+            })
+            .then(()=>{
+                return resolve();
             })
 
             .catch(error=>console.log(error));
@@ -120,6 +119,77 @@ exports = module.exports = functions.auth.user().onCreate((user) => {
     })
 
 })
+
+function insertStudentForm(uid,userData){
+    return new Promise(
+        (resolve, reject) => {
+            var docRef = db.collection("users").doc(uid);
+            
+            resolve (docRef.set({form:userData.form},{ merge: true }));
+            return
+            })
+            .catch((error) => {
+                console.log("Error getting document:", error);
+            });
+        
+
+}
+
+
+function insertUserPhoto(uid,id){
+    return new Promise(
+        (resolve, reject) => {
+            var docRef = db.collection("users").doc(uid);
+            getUserPhotoFromPass(id)
+            .then((img) => {
+                var image = String("data:image/jpeg;base64,"+img);
+                resolve (docRef.set({namePhoto:image},{ merge: true }));
+                return
+            })
+            .catch((error) => {
+                console.log("Error getting document:", error);
+            });
+        })
+
+}
+
+function getUserPhotoFromPass(id){
+  
+    //https://3sys.isdedu.de/Wcbs.API.2.2/api/names(1900523146)/photo
+    
+    
+    return new Promise(
+        (resolve, reject) => {
+        
+          util.wcbs22_get_token()
+          .then((auth) => { 
+            console.log("Get the Photo for "+id);
+
+            photoQueryUrl = util.wcbs22_prepare_photo_query() + "names("+id+")/photo"; // prepare query
+            //console.log(photoQueryUrl);
+            queryParams={ headers:{'Authorization':'Bearer ' +auth.access_token, 'User-Agent':'isd-sync-services'},
+                          method:"GET"};
+            
+            return util.queryAPI(photoQueryUrl,queryParams,"get_user_photo");
+            // return the query data
+          })
+          .then( (queryData) => {
+            let buff = new Buffer(queryData);  
+            let base64data = buff.toString('base64'); // convert to Base 64
+            console.log("END OF get_user_photo ");
+            resolve (base64data);
+            return
+          })
+          
+        .catch(error=>console.log("PHOTO: "+error))
+  
+  })
+}
+
+
+
+
+
 /* get teh claim */
 function getClaim(uid){
     return new Promise(
@@ -127,12 +197,17 @@ function getClaim(uid){
         
     admin.auth().getUser(uid).then((userRecord) => {
         // The claims can be accessed on the user record.
+        if (typeof userRecord.customClaims !== 'undefined'){
 
-        staff = (typeof userRecord.customClaims.staff !== 'undefined') ? true : false;
-        student = (typeof userRecord.customClaims.student !== 'undefined') ? true : false;
+            staff = (typeof userRecord.customClaims.staff !== 'undefined') ? true : false;
+            student = (typeof userRecord.customClaims.student !== 'undefined') ? true : false;
 
-        console.log("Staff :"+staff);
-        console.log("Student :"+student);
+            console.log("Staff :"+staff);
+            console.log("Student :"+student);
+        }
+        else{
+            console.log("No custom Claims");
+        }
 
         resolve()
         return

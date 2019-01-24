@@ -10,6 +10,8 @@ module.exports =  {
      * retrieves the authentication token 
      ***************************************************************/
     wcbs22_get_token: function(){
+        return new Promise(
+            (resolve, reject) => {
 
         queryUrl = endPointUrl+'token';
         const params = new URLSearchParams();
@@ -24,8 +26,8 @@ module.exports =  {
             method:"POST"
             };
 
-        return this.queryAPI(queryUrl,queryParams,"token") // this is a promise
-        
+        resolve (this.queryAPI(queryUrl,queryParams,"token")); // this is a promise
+        })
 
     },
 
@@ -37,6 +39,11 @@ module.exports =  {
     wcbs22_prepare_token_query: function(){
     
         return endPointUrl+'token';
+    },
+
+    wcbs22_prepare_photo_query: function(){
+    
+        return endPointUrl;
     },
 
     wcbs22_prepare_query: function(params){
@@ -75,7 +82,8 @@ module.exports =  {
             //console.log (res);
         }
         //console.log(output);
-        return output;
+        resolve(output)
+        return
         }})
         .then((result) => resolve(result)));
   }
