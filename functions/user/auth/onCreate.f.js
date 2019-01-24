@@ -25,10 +25,15 @@ try { db.settings({timestampsInSnapshots:true}) } catch (e) { console.log(e) }
 firebase functions:shell
 userDbOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de'})
 userDbOnCreate({ displayName: 'Ellie De Borde', email: 'el53de17@isdedu.de'})
+
+dev
+ userDbOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de', uid: 'YKMJqP0cJbPSOdZzR67w3iIZAbq2'})
+
+0eMZQoJNsedZVhbPxBKoeGBzLL12
 */
 
 /* set up for api call*/
-const cors = require('cors')({origin: true});
+//const cors = require('cors')({origin: true});
 //const fetch = require("node-fetch");
 
 const util = require('../../utility/pass.js');

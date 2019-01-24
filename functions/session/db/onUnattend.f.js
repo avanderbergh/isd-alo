@@ -20,9 +20,10 @@ exports = module.exports = functions.https.onCall((data, context) => {
         db.collection('sessions').doc(data.session).update({
             attendees: admin.firestore.FieldValue.arrayRemove(uid)
         }).then(result => {
-            return resolve(result)
+            resolve(result);
+            return
         }).catch(error => {
-            return reject(error);
+            reject(error);
         })
     })
 })

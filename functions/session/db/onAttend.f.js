@@ -14,17 +14,13 @@ try { db.settings({timestampsInSnapshots:true}) } catch (e) { console.log(e) }
 //  response.send("Hello from Firebase!");
 // });
 
-/*
-exports.attendSession = functions.https.onCall((data, context) => {
+exports = module.exports = functions.https.onCall((data, context) => {
     return new Promise((resolve, reject) => {
         const uid = context.auth.uid;
         const db = admin.firestore();
-        db.collection('sessions').doc(data.session).get()
-        .then(doc => {
+        db.collection('sessions').doc(data.session).get().then(doc => {
             const sessionToAttend = doc.data();
-        })
-        
-        db.collection('sessions')
+            db.collection('sessions')
                 .where('attendees', 'array-contains', uid)
                 .get().then(querySnapshot => {
                     let overlap = false;
@@ -33,12 +29,12 @@ exports.attendSession = functions.https.onCall((data, context) => {
                         // Session starts during another session
                         if (sessionToAttend.startTime.toMillis() >= existingSession.startTime.toMillis() && sessionToAttend.startTime.toMillis() < existingSession.endTime.toMillis()) {
                             overlap = true;
-                            retoverlap;
+                            return;
                         }
                         // Session ends during another session
                         if (sessionToAttend.endTime.toMillis() > existingSession.startTime.toMillis() && sessionToAttend.endTime.toMillis() <= existingSession.endTime.toMillis()) {
                             overlap = true;
-                            ;
+                            return;
                         }
                         // Session falls inside existing session
                         if (sessionToAttend.startTime.toMillis() > existingSession.startTime.toMillis() && sessionToAttend.endTime.toMillis() < existingSession.endTime.toMillis()) {
@@ -48,22 +44,29 @@ exports.attendSession = functions.https.onCall((data, context) => {
                         // Existing Session falls inside the session
                         if (existingSession.startTime.toMillis() >= sessionToAttend.startTime.toMillis() && existingSession.endTime.toMillis() <= sessionToAttend.endTime.toMillis()) {
                             overlap = true;
+                            return;
                         }
-                    })
+                    });
                     if (!overlap) {
                         db.collection('sessions').doc(data.session).update({
                             attendees: admin.firestore.FieldValue.arrayUnion(uid)
-                        }).then(() => {
+                        }).then(result => {
                             resolve(true)
+                            return
                         }).catch(error => {
                             reject(error)
                         })
                     } else {
                         resolve(false);
                     }
+                    return;
+                }).catch(err => {
+                    console.error(err);
                 })
+                return;
+        }).catch(err => {
+            console.error(err);
         })
     })
-
-*/
+})
 
