@@ -1,5 +1,5 @@
 export function firebaseConfig() {
-    if (window.location.hostname == 'localhost' || 'isdcoaching-dev.firebaseapp.com') {
+    if (window.location.hostname == 'localhost' || window.location.hostname == 'isdcoaching-dev.firebaseapp.com') {
         console.log('Using Dev Environment for Firebase');
         // Return Dev Config
         return {
@@ -29,7 +29,7 @@ export function gapiConfig() {
     ];
     const discoveryDocs = ["https://people.googleapis.com/$discovery/rest?version=v1"];
 
-    if (window.location.hostname == 'localhost' || 'isdcoaching-dev.firebaseapp.com') {
+    if (window.location.hostname == 'localhost' || window.location.hostname == 'isdcoaching-dev.firebaseapp.com') {
         console.log('Using Dev Environment for GAPI config');
         // Return Dev Config
         return {

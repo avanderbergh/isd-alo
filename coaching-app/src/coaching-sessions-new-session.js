@@ -220,7 +220,9 @@ class CoachingSessionsNewSession extends PolymerElement {
         this.formData.presenters = [firebase.auth().getUid()];
         const db = firebase.firestore();
         db.collection('sessions').add(this.formData).then(() => {
-            this.set('formData', {});
+            this.set('formData', {
+                spaces: []
+            });
             this.show = false;
         })
     }

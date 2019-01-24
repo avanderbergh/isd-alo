@@ -1,6 +1,8 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+
 admin.initializeApp();
+
 const settings = {
     timestampsInSnapshots: true
 };
@@ -81,5 +83,27 @@ exports.unattendSession = functions.https.onCall((data, context) => {
         }).catch(error => {
             reject(error);
         })
+    })
+})
+
+exports.addUserRole = functions.https.onCall((data, context) => {
+    return new Promise((resolve, reject) => {
+        if (context.auth.token.email === 'vanderbergha@isdedu.de') {
+            try {
+                let object = {admin: true};
+                object[data.role] = true;
+                admin.auth().setCustomUserClaims(data.uid, object).then(() => {
+                    console.log('User ', data.uid, 'has been set to', data.role);
+                    resolve("User "+data.uid+" has been set to "+data.role);
+                    return;
+                }).catch(error => {
+                    reject(new functions.https.HttpsError('aborted', 'error'));
+                })
+            } catch(error) {
+                reject(new functions.https.HttpsError('aborted', 'error'));
+            }
+        } else {
+            reject(new functions.https.HttpsError('aborted', "Unauthorised User"));
+        }
     })
 })

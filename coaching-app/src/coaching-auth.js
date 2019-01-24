@@ -59,25 +59,30 @@ class coachingAuth extends PolymerElement {
 
     _firebaseAuthStateChanged(firebaseUser) {
         if (firebaseUser) {
-            this.signedIn = true;
-            const db = firebase.firestore();
-            db.collection('users').doc(firebaseUser.uid).get().then(doc => {
-                if (doc.exists) {
-                    let user = doc.data();
-                    user.uid = doc.id;
-                    this.user = user; /* todo: update usertypes */
-                } else {
-                    const user = {
-                        displayName: firebaseUser.displayName,
-                        email: firebaseUser.email,
-                        photoURL: firebaseUser.photoURL
-                    };
-                    db.collection('users').doc(firebaseUser.uid).set(user)
-                        .then(() => {
-                            console.log('Added the user')
-                            this.user = user;
-                        });
-                }
+            firebase.auth().currentUser.getIdTokenResult()
+            .then((idTokenResult) => {
+                console.log('User Claims', idTokenResult.claims);
+                this.signedIn = true;
+                const db = firebase.firestore();
+                db.collection('users').doc(firebaseUser.uid).get().then(doc => {
+                    if (doc.exists) {
+                        let user = doc.data();
+                        user.uid = doc.id;
+                        user.claims = idTokenResult.claims;
+                        this.user = user; /* todo: update usertypes */
+                    } else {
+                        const user = {
+                            displayName: firebaseUser.displayName,
+                            email: firebaseUser.email,
+                            photoURL: firebaseUser.photoURL
+                        };
+                        db.collection('users').doc(firebaseUser.uid).set(user)
+                            .then(() => {
+                                console.log('Added the user')
+                                this.user = user;
+                            });
+                    }
+                })
             })
         } else {
             this.signedIn = false;
