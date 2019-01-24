@@ -2,12 +2,13 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
 var serviceAccount = require("../../serviceAccountKey.json");
-
-
 try { admin.initializeApp(
-        {credential: admin.credential.cert(serviceAccount),
-        databaseURL: "https://isdcoaching-dev.firebaseio.com"}) }
- catch (e) { console.log(e) }
+        {
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: "https://isdcoaching-dev.firebaseio.com"
+        }) 
+    }
+ catch (e) { console.log(e)}
 
 // Get a database reference
 var db = admin.firestore();
@@ -88,7 +89,7 @@ exports = module.exports = functions.auth.user().onCreate((user) => {
             .then(() =>{
                 // process userType
 
-                console.log("Existing Roles");
+                console.log("Existing Roles for "+ user.uid);
                 return getClaim(user.uid)
             })
             .then((res) =>{
@@ -195,7 +196,7 @@ function getClaim(uid){
     return new Promise(
         (resolve, reject) => {
         
-    admin.auth().getUser(uid).then((userRecord) => {
+        admin.auth().getUser(uid).then((userRecord) => {
         // The claims can be accessed on the user record.
         if (typeof userRecord.customClaims !== 'undefined'){
 
