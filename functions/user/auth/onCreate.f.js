@@ -1,7 +1,8 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-var serviceAccount = require("../../serviceAccountKey.json");
+/* DEV SETUP 
+var serviceAccount = require("../../serviceAccountKeyDev.json");
 try { admin.initializeApp(
         {
         credential: admin.credential.cert(serviceAccount),
@@ -9,6 +10,20 @@ try { admin.initializeApp(
         }) 
     }
  catch (e) { console.log(e)}
+*/
+
+ /* PRODUCTION SETUP */
+var serviceAccount = require("../../serviceAccountKeyProduction.json");
+
+try { admin.initializeApp(
+    {
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: "https://isdcoaching.firebaseio.com"
+    }) 
+}
+catch (e) { console.log(e)}
+
+
 
 // Get a database reference
 var db = admin.firestore();
