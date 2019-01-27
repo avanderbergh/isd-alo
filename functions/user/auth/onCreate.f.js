@@ -1,7 +1,8 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-var serviceAccount = require("../../serviceAccountKey.json");
+/* DEV SETUP 
+var serviceAccount = require("../../serviceAccountKeyDev.json");
 try { admin.initializeApp(
         {
         credential: admin.credential.cert(serviceAccount),
@@ -9,6 +10,20 @@ try { admin.initializeApp(
         }) 
     }
  catch (e) { console.log(e)}
+
+*/
+ /* PRODUCTION SETUP */
+var serviceAccount = require("../../serviceAccountKeyProduction.json");
+
+try { admin.initializeApp(
+    {
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: "https://isdcoaching.firebaseio.com"
+    }) 
+}
+catch (e) { console.log(e)}
+
+
 
 // Get a database reference
 var db = admin.firestore();
@@ -29,9 +44,7 @@ userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de'}
 userAuthOnCreate({ displayName: 'Ellie De Borde', email: 'el53de17@isdedu.de'})
 
 dev
- userAuthOnCreate({ displayName: 'Ellie De Borde', email: 'el53de17@isdedu.de', uid: 'oRomhD1EiRcVoW6LRUdTZuec7Ey2'})
- userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de', uid: 'cxKq1XSEyZcXmedglJoHFE5LxD73'})
-0eMZQoJNsedZVhbPxBKoeGBzLL12
+    userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de', uid: 'FLfKY4nnXvMSVcPwgghGZdBNdrC2'})
 */
 
 /* set up for api call*/
@@ -46,8 +59,67 @@ const util = require('../../utility/pass.js');
 exports = module.exports = functions.auth.user().onCreate((user) => {
     return new Promise(
         (resolve, reject) => {
-            util.wcbs22_get_token()
-            .then((auth)=>{
+           
+                var promises = [];
+
+                if (user.email && user.uid){
+                    const update_one = updateOne(user);
+                    promises.push (update_one);
+                    
+                }
+                else {console.log("update Many")
+                    // do the update with many users
+                    // loop through users... add promises to the array
+                    const update_many = updateMany();
+                    promises.push (update_many);
+                    }
+                //console.log(promises);
+                return Promise.all(promises);})
+                .then(()=>{
+                    return resolve();
+                })
+        
+                
+            })
+   
+                
+
+
+function updateMany(){
+    return new Promise(
+        (resolve, reject) => {
+                db.collection("users").get()
+                    .then((querySnapshot) => {
+                        var promises = [];
+                        querySnapshot.forEach((doc) => {
+                            // doc.data() is never undefined for query doc snapshots
+                            //console.log(doc.id, " => ", doc.data().displayName);
+                            var user = doc.data();
+                            user.uid = doc.id;
+                            const update_user = updateOne(user);
+                            promises.push (update_user);
+
+                        })
+                        return Promise.all(promises);
+                    })
+                    .then(()=>{
+                        return resolve();
+                    })
+                .catch(error=>console.log(error));
+            }
+    )}
+
+
+
+
+
+function updateOne(user,auth){
+    var userType = {};
+
+    return new Promise(
+        (resolve, reject) => {
+                util.wcbs22_get_token()
+                .then((auth) => {
                 
                 queryParams={ headers:{'Authorization':'Bearer ' +auth.access_token, 
                             'User-Agent':'isd-sync-services'},
@@ -74,7 +146,7 @@ exports = module.exports = functions.auth.user().onCreate((user) => {
 
             })
             .then((results) => {
-
+                
                 if (results[0].value.length >=1)
                     { userType = {type : 'student', 
                                   id: results[0].value[0].NameId,
@@ -88,8 +160,8 @@ exports = module.exports = functions.auth.user().onCreate((user) => {
             })
             .then(() =>{
                 // process userType
-
-                console.log("Existing Roles for "+ user.uid);
+                console.log("update one: "+user.displayName);
+                //console.log("Existing Roles for "+ user.uid);
                 return getClaim(user.uid)
             })
             .then((res) =>{
@@ -99,56 +171,63 @@ exports = module.exports = functions.auth.user().onCreate((user) => {
                 return userType;
             })
             .then((userType)=>{
-                var promises = [];
+                var newPromises = [];
+
                 const photo = insertUserPhoto(user.uid,userType.id);
-                promises.push(photo);
+                newPromises.push(photo);
                 if (userType.type === "student")
                 {
                     const form = insertStudentForm(user.uid,userType);
-                    promises.push(form); 
+                    newPromises.push(form); 
                 }
-                return Promise.all(promises);
+
+                return Promise.all(newPromises);
             })
             .then(()=>{
                 return resolve();
             })
-
             .catch(error=>console.log(error));
+        })  
+            
+        }
 
-      
-        
-    })
-
-})
 
 function insertStudentForm(uid,userData){
     return new Promise(
         (resolve, reject) => {
             var docRef = db.collection("users").doc(uid);
             
-            resolve (docRef.set({form:userData.form},{ merge: true }));
-            return
+            return resolve (docRef.set({form:userData.form},{ merge: true }));
             })
             .catch((error) => {
                 console.log("Error getting document:", error);
+
             });
         
-
 }
 
 
 function insertUserPhoto(uid,id){
+    var image = "";
     return new Promise(
         (resolve, reject) => {
-            var docRef = db.collection("users").doc(uid);
             getUserPhotoFromPass(id)
-            .then((img) => {
-                var image = String("data:image/jpeg;base64,"+img);
-                resolve (docRef.set({namePhoto:image},{ merge: true }));
+            .then((res) => { 
+                if (res){
+                    img = res;
+                    image = String("data:image/jpeg;base64,"+img);
+                    var docRef = db.collection("users").doc(uid);
+                    docRef.set({namePhoto:image},{ merge: true })}
+                
                 return
+            })
+            .then(()=>{
+                console.log("INSERT PHOTO DONE for: " +uid);
+                return resolve;
             })
             .catch((error) => {
                 console.log("Error getting document:", error);
+                return reject;
             });
         })
 
@@ -164,7 +243,7 @@ function getUserPhotoFromPass(id){
         
           util.wcbs22_get_token()
           .then((auth) => { 
-            console.log("Get the Photo for "+id);
+            //console.log("Get the Photo for "+id);
 
             photoQueryUrl = util.wcbs22_prepare_photo_query() + "names("+id+")/photo"; // prepare query
             //console.log(photoQueryUrl);
@@ -177,12 +256,14 @@ function getUserPhotoFromPass(id){
           .then( (queryData) => {
             let buff = new Buffer(queryData);  
             let base64data = buff.toString('base64'); // convert to Base 64
-            console.log("END OF get_user_photo ");
-            resolve (base64data);
-            return
+            //console.log("END OF get_user_photo ");
+            return resolve (base64data);
+            
           })
           
-        .catch(error=>console.log("PHOTO: "+error))
+        .catch(error=>{
+            console.log("PHOTO ERROR: "+error);
+            return reject });
   
   })
 }
@@ -210,8 +291,8 @@ function getClaim(uid){
             console.log("No custom Claims");
         }
 
-        resolve()
-        return
+        return resolve()
+       
 
       })
       .catch(error => {console.log(error);});
@@ -219,6 +300,8 @@ function getClaim(uid){
 }
 
 function setClaim(user, customClaims){
+    return new Promise(
+        (resolve, reject) => {
 
     return admin.auth().setCustomUserClaims(user.uid, customClaims)
     .then(() => {
@@ -226,9 +309,11 @@ function setClaim(user, customClaims){
     const metadataRef = admin.database().ref("metadata/" + user.uid);
     // Set the refresh time to the current UTC timestamp.
     // This will be captured on the client to force a token refresh.
-    return metadataRef.set({refreshTime: new Date().getTime()});
+    return resolve (metadataRef.set({refreshTime: new Date().getTime()}));
+    
     })
     .catch(error => {
     console.log(error);
     });
+})  
 }
