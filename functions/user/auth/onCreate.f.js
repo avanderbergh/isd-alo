@@ -10,6 +10,20 @@ try { admin.initializeApp(
         }) 
     }
  catch (e) { console.log(e)}
+*/
+
+ /* PRODUCTION SETUP */
+var serviceAccount = require("../../serviceAccountKeyProduction.json");
+
+try { admin.initializeApp(
+    {
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: "https://isdcoaching.firebaseio.com"
+    }) 
+}
+catch (e) { console.log(e)}
+
+
 
 */
  /* PRODUCTION SETUP */
