@@ -55,7 +55,6 @@ class CoachingDays extends PolymerElement {
             </app-route>
 
             <template is="dom-if" if="{{!routeData.dayId}}">
-                <h1>Days</h1>
                 <div id="day-container">
                     <dom-repeat items="{{days}}" as="day">
                         <template>

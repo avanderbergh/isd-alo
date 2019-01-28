@@ -102,16 +102,15 @@ class CoachingApp extends PolymerElement {
           <coaching-landing-page on-sign-in="_handleSignInTapped"></coaching-landing-page>
         </template>
         <template is="dom-if" if="{{signedIn}}">
-          <app-drawer-layout fullbleed="" narrow="{{narrow}}">
+          <app-drawer-layout fullbleed="" force-narrow>
             <!-- Drawer content -->
-            <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
+            <app-drawer id="drawer" slot="drawer" swipe-open="true">
               <app-toolbar>Menu</app-toolbar>
               <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-                <a name="dashboard" href="[[rootPath]]dashboard">Home</a>
+                <a name="days" href="[[rootPath]]days">Home</a>                
                 <template is="dom-if" if="{{user.claims.staff}}">
                   <a name="workshops" href="[[rootPath]]workshops">Workshops</a>
                 </template>
-                <a name="days" href="[[rootPath]]days">Days</a>                
                 <template is="dom-if" if="{{user.claims.admin}}">
                   <a name="spaces" href="[[rootPath]]spaces">Spaces</a>
                 </template>
@@ -184,7 +183,7 @@ class CoachingApp extends PolymerElement {
     // If no page was found in the route data, page will be an empty string.
     // Show 'dashboard' in that case. And if the page doesn't exist, show 'view404'.
     if (!page) {
-      this.page = 'dashboard';
+      this.page = 'days';
     } else if (['dashboard', 'workshops', 'spaces','days', 'sessions', 'users'].indexOf(page) !== -1) {
       this.page = page;
     } else {
