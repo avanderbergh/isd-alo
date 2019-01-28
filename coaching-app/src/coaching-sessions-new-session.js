@@ -124,7 +124,7 @@ class CoachingSessionsNewSession extends PolymerElement {
                     <div>
                         <p><span class="form-label">Which grade levels can attend this session?</span></p>
                         <template is="dom-repeat" items="{{grades}}" as="grade">
-                            <paper-checkbox data-grade$="[[grade]]" on-checked-changed="_gradeChecked">Grade [[grade]]</paper-checkbox>
+                            <paper-checkbox class="grade-checkbox" data-grade$="[[grade]]" on-checked-changed="_gradeChecked">Grade [[grade]]</paper-checkbox>
                         </template>
                     </div>
                     <div>
@@ -198,7 +198,10 @@ class CoachingSessionsNewSession extends PolymerElement {
                     if (session.startTime.toDate() < endTime) usedSpaces.push(session.space);
                 });
                 console.log('Used Spaces', usedSpaces);
-                db.collection('spaces').get().then(querySnapshot => {
+                db.collection('spaces')
+                .orderBy('name')
+                .get()
+                .then(querySnapshot => {
                     this.set('spaces', []);
                     querySnapshot.forEach(doc => {
                         let space = doc.data();
@@ -220,16 +223,24 @@ class CoachingSessionsNewSession extends PolymerElement {
         this.formData.presenters = [firebase.auth().getUid()];
         const db = firebase.firestore();
         db.collection('sessions').add(this.formData).then(() => {
-            this.set('formData', {
-                spaces: []
-            });
+            this._resetForm();
             this.show = false;
         })
     }
 
     _handleCancelTapped() {
-        this.set('formData', {});
+        this._resetForm();
         this.show = false;
+    }
+
+    _resetForm() {
+        this.set('formData', {
+            grades: []
+        });
+        const checkboxes = this.shadowRoot.querySelectorAll('paper-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
     }
 
     _dayChanged(day) {
@@ -242,7 +253,7 @@ class CoachingSessionsNewSession extends PolymerElement {
                 this.set('startTimes', []);
                 while (time.getTime() < endTime.getTime()) {
                     this.push('startTimes', {date: time, display: format(time, 'H:mm')})
-                    time = addMinutes(time, 15);
+                    time = addMinutes(time, 30);
                 }
             }
         }
@@ -253,7 +264,7 @@ class CoachingSessionsNewSession extends PolymerElement {
             let time = startTime;
             this.set('endTimes', []);
             while (time.getTime() < this.day.endTime.toDate().getTime()) {
-                time = addMinutes(time, 15);
+                time = addMinutes(time, 30);
                 this.push('endTimes', {date: time, display: format(time, 'H:mm')})
             }
         }

@@ -19,7 +19,8 @@ class CoachingSessions extends PolymerElement {
             },
             title: String,
             user: Object,
-            timeslot: Object
+            timeslot: Object,
+            formYear: Number
         };
     }
 
@@ -68,7 +69,7 @@ class CoachingSessions extends PolymerElement {
         if (this.snapshotListener) this.snapshotListener();
     }
 
-    _loadSessions(day=null, user=null, timeslot=null) {
+    _loadSessions(day=null, user=null, timeslot=null, formYear=null) {
         const db = firebase.firestore();
 
         let query = db.collection('sessions');
@@ -80,6 +81,11 @@ class CoachingSessions extends PolymerElement {
         if (user) {
             console.log('filtering by user')
             query = query.where('presenters', 'array-contains', user.uid)
+        }
+
+        if (formYear) {
+            console.log('filering by form year')
+            query = query.where('grades', 'array-contains', formYear)
         }
 
         if (timeslot) {
@@ -104,7 +110,7 @@ class CoachingSessions extends PolymerElement {
     }
 
     _timeslotChanged(timeslot) {
-        this._loadSessions(null, this.user, timeslot);
+        this._loadSessions(null, null, timeslot, this.formYear);
     }
 
 }
