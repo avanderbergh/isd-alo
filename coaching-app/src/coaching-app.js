@@ -108,7 +108,9 @@ class CoachingApp extends PolymerElement {
               <app-toolbar>Menu</app-toolbar>
               <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
                 <a name="dashboard" href="[[rootPath]]dashboard">Home</a>
-                <a name="workshops" href="[[rootPath]]workshops">Workshops</a>
+                <template is="dom-if" if="{{user.claims.staff}}">
+                  <a name="workshops" href="[[rootPath]]workshops">Workshops</a>
+                </template>
                 <a name="days" href="[[rootPath]]days">Days</a>                
                 <template is="dom-if" if="{{user.claims.admin}}">
                   <a name="spaces" href="[[rootPath]]spaces">Spaces</a>

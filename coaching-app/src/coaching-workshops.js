@@ -25,11 +25,13 @@ class CoachingWorkshops extends PolymerElement {
                 padding: 10px;
                 }
             </style>
-            <h1>Workshops</h1>
-            <template is="dom-repeat" items="{{workshops}}" as="workshop">
-                <p>[[workshop.title]]</p>
+            <template is="dom-if" if="{{user.claims.staff}}">
+                <h1>Workshops</h1>
+                <template is="dom-repeat" items="{{workshops}}" as="workshop">
+                    <p>[[workshop.title]]</p>
+                </template>
+                <coaching-new-workshop></coaching-new-workshop>
             </template>
-            <coaching-new-workshop></coaching-new-workshop>
         `;
     }
 
