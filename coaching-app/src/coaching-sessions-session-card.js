@@ -4,6 +4,7 @@ import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
 import '@polymer/iron-icons/iron-icons.js';
 import '@polymer/paper-spinner/paper-spinner-lite.js';
+import '@polymer/paper-progress/paper-progress.js';
 import {format} from 'date-fns';
 
 import './shared-styles.js';
@@ -85,6 +86,13 @@ class CoachingSessionsSessionCard extends PolymerElement {
                     --paper-spinner-color: #fff;
                 }
 
+                paper-progress {
+                    margin-top: 10px;
+                    width: 100%;
+                    --paper-progress-active-color: #fff;
+                    --paper-progress-container-color: #000;
+                }
+
             </style>
             <div id="sessionCard">
                 <div id="attending">
@@ -114,6 +122,7 @@ class CoachingSessionsSessionCard extends PolymerElement {
                             [[presenter.displayName]]
                         </template>
                     </p>
+                    <paper-progress max="[[session.capacity]]" value="[[session.attendees.length]]"></paper-progress>
                 </div>
             </div>
         `;

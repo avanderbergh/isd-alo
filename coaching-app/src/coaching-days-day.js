@@ -47,7 +47,7 @@ class CoachingDaysDay extends PolymerElement {
             <h1>[[displayDate]]</h1>
             <template is="dom-if" if="{{!showNewSession}}">
                 <template is="dom-repeat" items="{{timeslots}}" as="timeslot">
-                    <coaching-timeslot user= "[[user]]" timeslot="[[timeslot]]"></coaching-timeslot>
+                    <coaching-timeslot user="[[user]]" timeslot="[[timeslot]]"></coaching-timeslot>
                 </template>
             </template>
             <template is="dom-if" if="{{user.claims.staff}}">

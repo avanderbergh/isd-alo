@@ -59,30 +59,51 @@ class coachingAuth extends PolymerElement {
 
     _firebaseAuthStateChanged(firebaseUser) {
         if (firebaseUser) {
+            this.loading = true;
             firebase.auth().currentUser.getIdTokenResult()
             .then((idTokenResult) => {
                 console.log('User Claims', idTokenResult.claims);
-                this.signedIn = true;
-                const db = firebase.firestore();
-                db.collection('users').doc(firebaseUser.uid).get().then(doc => {
-                    if (doc.exists) {
-                        let user = doc.data();
-                        user.uid = doc.id;
-                        user.claims = idTokenResult.claims;
-                        this.user = user; /* todo: update usertypes */
-                    } else {
-                        const user = {
-                            displayName: firebaseUser.displayName,
-                            email: firebaseUser.email,
-                            photoURL: firebaseUser.photoURL
-                        };
-                        db.collection('users').doc(firebaseUser.uid).set(user)
-                            .then(() => {
-                                console.log('Added the user')
-                                this.user = user;
-                            });
+                if (idTokenResult.claims.staff || idTokenResult.claims.student) {
+                    this.signedIn = true;
+                    const db = firebase.firestore();
+                    db.collection('users').doc(firebaseUser.uid).get().then(doc => {
+                        if (doc.exists) {
+                            let user = doc.data();
+                            user.uid = doc.id;
+                            user.claims = idTokenResult.claims;
+                            db.collection('users').doc(firebaseUser.uid).update({
+                                displayName: firebaseUser.displayName,
+                                email: firebaseUser.email,
+                                photoURL: firebaseUser.photoURL
+                            }).then(() =>{
+                                console.log('User Updated');
+                                this.user = user; /* todo: update usertypes */
+                                this.loading = false;
+                            })
+                        } else {
+                            const user = {
+                                displayName: firebaseUser.displayName,
+                                email: firebaseUser.email,
+                                photoURL: firebaseUser.photoURL
+                            };
+                            db.collection('users').doc(firebaseUser.uid).set(user)
+                                .then(() => {
+                                    console.log('Added the user');
+                                    user.claims = idTokenResult.claims;
+                                    this.user = user;
+                                    this.loading = false;
+                                });
+                        }
+                    })
+                } else {
+                    console.log('User has no claims, try again');
+                    const sleep = milliseconds => {
+                        return new Promise(resolve => setTimeout(resolve, milliseconds))
                     }
-                })
+                    sleep(3000).then(() => {
+                        this._firebaseAuthStateChanged(firebaseUser);
+                    })
+                }
             })
         } else {
             this.signedIn = false;

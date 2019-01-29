@@ -25,6 +25,17 @@ class CoachingSessionDetail extends PolymerElement {
                 #session-container {
                     margin: 12px;
                 }
+
+                .attendees-list {
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                }
+
+                .attendee {
+                    padding: 10px;
+                    align-content: center;
+                }
             </style>
 
             <app-route route="{{route}}" pattern="/:sessionId" data="{{routeData}}">
@@ -35,10 +46,13 @@ class CoachingSessionDetail extends PolymerElement {
                 <h2>[[session.title]]</h2>
                 <p>Location: [[space.name]]</p>
                 <p>[[session.description]]</p>
-                <div>
-                    <h3>Attendees ([[attendees.length]])</h3>
+                <h3>Attendees ([[attendees.length]])</h3>
+                <div class="attendees-list">
                     <template is="dom-repeat" items="{{attendees}}" as="attendee">
-                        <p>[[attendee.displayName]]</p>
+                        <div class="attendee">
+                            <img src="[[attendee.namePhoto]]" alt="Photo"/>
+                            <p>[[attendee.displayName]]</p>
+                        </div>
                     </template>
                 </div>
             </div>
@@ -86,6 +100,7 @@ class CoachingSessionDetail extends PolymerElement {
                 session.attendees.forEach(attendeeId => {
                     db.collection('users').doc(attendeeId).get().then(doc => {
                         let user = doc.data();
+                        console.log('Attendee', user);
                         this.push('attendees', user);
                     })
                 })

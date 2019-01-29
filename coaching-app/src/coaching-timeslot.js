@@ -43,7 +43,7 @@ class CoachingTimeslot extends PolymerElement {
                     <p>[[displayStartTime]]</p>
                 </div>
                 <div id="sessions">
-                    <coaching-sessions form-year="[[user.formYear]]" timeslot="[[timeslot]]"></coaching-sessions>
+                    <coaching-sessions form-year="[[user.yearNumber]]" timeslot="[[timeslot]]"></coaching-sessions>
                 </div>
             </div>
         `;

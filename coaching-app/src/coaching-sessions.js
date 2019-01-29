@@ -20,7 +20,10 @@ class CoachingSessions extends PolymerElement {
             title: String,
             user: Object,
             timeslot: Object,
-            formYear: Number
+            formYear: {
+                type: Number,
+                observer: '_formYearChanged'
+            }
         };
     }
 
@@ -111,6 +114,12 @@ class CoachingSessions extends PolymerElement {
 
     _timeslotChanged(timeslot) {
         this._loadSessions(null, null, timeslot, this.formYear);
+    }
+
+    _formYearChanged(formYear) {
+        if (this.timeslot) {
+            this._loadSessions(null, null, this.timeslot, formYear);
+        }
     }
 
 }
