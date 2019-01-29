@@ -1,5 +1,7 @@
 import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
 import '@polymer/app-route/app-route.js';
+import '@polymer/paper-input/paper-input.js';
+import '@polymer/paper-input/paper-textarea.js';
 
 class CoachingSessionDetail extends PolymerElement {
     static get properties() {
@@ -15,7 +17,19 @@ class CoachingSessionDetail extends PolymerElement {
                 observer: '_sessionChanged'
             },
             user: Object,
-            workshop: Object
+            workshop: Object,
+            sessionPresenter: {
+                type: Boolean,
+                computed: '_computeSessionPresenter(session)'
+            },
+            showEditSessionTitle: {
+                type: Boolean,
+                value: false
+            },
+            showEditSessionDescription: {
+                type: Boolean,
+                value: false
+            }
         }
     }
 
@@ -42,10 +56,25 @@ class CoachingSessionDetail extends PolymerElement {
             </app-route>
 
             <div id="session-container">
+                <template is="dom-if" if="{{sessionPresenter}}">
+                    <p>You're presenting this session</p>
+                </template>
                 <h1>[[workshop.title]]</h1>
-                <h2>[[session.title]]</h2>
+                <template is="dom-if" if="{{!showEditSessionTitle}}">
+                    <h2 on-tap="_handleSessionTitleTapped">[[session.title]]</h2>
+                </template>
+                <template is="dom-if" if="{{sessionPresenter}}">
+                    <template is="dom-if" if="{{showEditSessionTitle}}">
+                        <paper-input value="{{session.title}}" on-keydown="_checkForEnterOnSessionTitle"></paper-input>
+                    </template>
+                </template>
                 <p>Location: [[space.name]]</p>
-                <p>[[session.description]]</p>
+                <template is="dom-if" if="{{!showEditSessionDescription}}">
+                    <p on-tap="_handleSessionDescriptionTapped">[[session.description]]</p>
+                </template>
+                <template is="dom-if" if="{{showEditSessionDescription}}">
+                    <paper-textarea value="{{session.description}}" on-keydown="_checkForEnterOnSessionDescription"></paper-textarea>
+                </template>
                 <h3>Attendees ([[attendees.length]])</h3>
                 <div class="attendees-list">
                     <template is="dom-repeat" items="{{attendees}}" as="attendee">
@@ -56,7 +85,6 @@ class CoachingSessionDetail extends PolymerElement {
                     </template>
                 </div>
             </div>
-
         `;
     }
 
@@ -85,6 +113,8 @@ class CoachingSessionDetail extends PolymerElement {
     }
 
     _sessionChanged(session) {
+        this.showEditSessionDescription = false;
+        this.showEditSessionTitle = false;
         if (session) {
             const db = firebase.firestore();
             db.collection('workshops').doc(session.workshop).get().then(doc => {
@@ -103,6 +133,46 @@ class CoachingSessionDetail extends PolymerElement {
                         console.log('Attendee', user);
                         this.push('attendees', user);
                     })
+                })
+            }
+        }
+    }
+
+    _computeSessionPresenter(session){
+        const uid = firebase.auth().getUid();
+        console.log('Uid', uid);
+        return session.presenters.includes(uid);
+    }
+
+    _handleSessionTitleTapped() {
+        if (this.sessionPresenter) this.showEditSessionTitle = true;
+    }
+
+    _handleSessionDescriptionTapped() {
+        if (this.sessionPresenter) this.showEditSessionDescription = true;
+    }
+
+    _checkForEnterOnSessionTitle(e){
+        if (this.sessionPresenter) {
+            if (e.keyCode == 13) {
+                const db = firebase.firestore();
+                db.collection('sessions').doc(this.session.__id__).update({
+                    title: this.session.title
+                }).then(() => {
+                    this.showEditSessionTitle = false;
+                })
+            }
+        }
+    }
+
+    _checkForEnterOnSessionDescription(e) {
+        if (this.sessionPresenter) {
+            if (e.keyCode == 13) {
+                const db = firebase.firestore();
+                db.collection('sessions').doc(this.session.__id__).update({
+                    description: this.session.description
+                }).then(() => {
+                    this.showEditSessionDescription = false;
                 })
             }
         }

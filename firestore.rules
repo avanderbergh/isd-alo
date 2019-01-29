@@ -3,9 +3,45 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth.uid != null;
     }
-
-    match /{document=**} {
-      allow read, write: if isSignedIn();
+    
+    function verifiedUser() {
+     return request.auth.token.staff == true || request.auth.token.student == true || request.auth.token.email == 'pbegley101@gmail.com'
+    }
+    
+    function isAdmin() {
+    	return request.auth.token.admin == true;
+    }
+    
+    function isStaff() {
+    	return  request.auth.token.staff == true;
+    }
+    
+    match /days/{day} {
+    	allow read: if isSignedIn() && verifiedUser();
+      allow write: if isAdmin();
+    }
+    
+    match /sessions/{session} {
+    	allow read: if isSignedIn() && verifiedUser();
+      allow create: if isStaff();
+      allow update: if request.auth.uid in resource.data.presenters
+    }
+    
+    match /spaces/{space} {
+    	allow read: if isSignedIn() && verifiedUser();
+      allow write: if isAdmin();
+    }
+    
+    match /users/{user} {
+    	allow read: if isSignedIn() && verifiedUser();
+      allow create: if isSignedIn() && verifiedUser();
+      allow update: if request.auth.uid == resource.id;
+    }
+    
+    match /workshops/{workshop} {
+    	allow read: if isSignedIn() && verifiedUser();
+      allow create: if isStaff();
+      allow update: if request.auth.uid == resource.data.owner
     }
   }
 }
