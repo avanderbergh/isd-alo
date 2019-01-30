@@ -1,0 +1,56 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>my-view1</title>
+
+    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../node_modules/wct-browser-legacy/browser.js"></script>
+
+    <!-- Import the element to test -->
+    <script type="module" src="../src/components/coachees/coaching-coachees.js"></script>
+  </head>
+  <body>
+    <test-fixture id="BasicView">
+      <template>
+        <coaching-coachees ></coaching-coachees>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="NamedView">
+        <template>
+          <coaching-coachees name="coachees" route="coachees"></coaching-coachees>
+        </template>
+      </test-fixture>
+
+    <script type="module">
+      suite('coachee tests', function() {
+        test('Element does not exist', function() {
+          var myView = fixture('BasicView');
+          var el = myView.shadowRoot.querySelector('h1');
+
+          assert.equal(el, null);
+        });
+        test('Element assigned name and route prop exists', function() {
+          var myView = fixture('NamedRoutedView');
+          var el = myView.shadowRoot.querySelector('h2');
+          var el1 = myView.shadowRoot.querySelector('h1');
+          assert.equal(el.innerHTML, "Erase");
+          assert.equal(el1.innerHTML, "Coachees");
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -103,7 +103,7 @@ class CoachingSessionsSessionCard extends PolymerElement {
     }
 
     _sessionChanged(session) {
-        console.log('Session Changed', session);
+        //console.log('Session Changed', session);
         this._fetchWorkshop(session);
         this._fetchPresenters(session);
     }
