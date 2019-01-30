@@ -62,6 +62,7 @@ class CoachingDaysDay extends PolymerElement {
 
     ready() {
         super.ready();
+        console.log('-------Timeslots',this.timeslots)
     }
 
     _dayIdChanged(dayId) {
@@ -97,6 +98,8 @@ class CoachingDaysDay extends PolymerElement {
             this.push('timeslots', {startTime: new Date(time), endTime: new Date(time + 900000)});
             time += 900000;
         }
+        console.log('-------Timeslots',this.timeslots)
+    
     }
 }
 

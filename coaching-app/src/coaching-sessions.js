@@ -62,8 +62,9 @@ class CoachingSessions extends PolymerElement {
 
     ready() {
         super.ready();
+        console.log('user--------',this.user)
         if (!this.day && !this.timeslot) {
-            this._loadSessions();
+            this._loadSessions(null,this.user,null);
         }
     }
 
@@ -77,13 +78,19 @@ class CoachingSessions extends PolymerElement {
 
         let query = db.collection('sessions');
         if (day) {
-            console.log('filtering by day')
+            //console.log('filtering by day')
             query = query.where('startTime', '>=', day.startTime)
                 .where('startTime', '<=', day.endTime)
         }
+        
         if (user) {
-            console.log('filtering by user')
-            query = query.where('presenters', 'array-contains', user.uid)
+            console.log('filtering by user',user);
+            
+            //if (user.claims.staff) {
+            //    query = query.where('presenters', 'array-contains', user.uid)
+            //} else {
+                query = query.where('attendees', 'array-contains', `${user.uid}`)
+            //}
         }
 
         if (formYear) {
@@ -92,7 +99,7 @@ class CoachingSessions extends PolymerElement {
         }
 
         if (timeslot) {
-            console.log('filtering by timeslot');
+            //console.log('filtering by timeslot');
             query = query.where('startTime', '>=', timeslot.startTime)
                 .where('startTime', '<', timeslot.endTime);
         }
@@ -108,7 +115,7 @@ class CoachingSessions extends PolymerElement {
     }
 
     _dayChanged(day) {
-        console.log('Day Changed', day);
+        //console.log('Day Changed', day);
         this._loadSessions(day, this.user);        
     }
 

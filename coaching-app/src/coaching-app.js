@@ -114,6 +114,7 @@ class CoachingApp extends PolymerElement {
                 <template is="dom-if" if="{{user.claims.admin}}">
                   <a name="spaces" href="[[rootPath]]spaces">Spaces</a>
                 </template>
+                <a name="coachees" href="[[rootPath]]coachees">Coaching</a>                
               </iron-selector>
             </app-drawer>
 
@@ -135,6 +136,7 @@ class CoachingApp extends PolymerElement {
                 <coaching-days name="days" route="[[subroute]]" user="[[user]]"></coaching-days>
                 <coaching-session-detail name="sessions" route="[[subroute]]" user="[[user]]"></coaching-session-detail>
                 <coaching-users name="users" user="[[user]]"><coaching-users>
+                <coaching-coachees name="coachees" route="[[subroute]]" user="[[user]]"></coaching-coachees>
                 <coaching-view404 name="view404"></coaching-view404>
               </iron-pages>
             </app-header-layout>
@@ -184,7 +186,8 @@ class CoachingApp extends PolymerElement {
     // Show 'dashboard' in that case. And if the page doesn't exist, show 'view404'.
     if (!page) {
       this.page = 'days';
-    } else if (['dashboard', 'workshops', 'spaces','days', 'sessions', 'users'].indexOf(page) !== -1) {
+    } else if (['dashboard', 'workshops', 'spaces','days', 'sessions', 'users', 'coachees'].indexOf(page) !== -1) {
+
       this.page = page;
     } else {
       this.page = 'view404';
@@ -222,6 +225,10 @@ class CoachingApp extends PolymerElement {
         break;
       case 'users':
         import('./coaching-users.js');
+        break;
+      case 'coachees':
+        import('./coaching-coachees');
+        break;
       case 'view404':
         import('./coaching-view404.js');
         break;
