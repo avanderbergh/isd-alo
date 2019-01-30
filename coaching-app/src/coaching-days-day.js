@@ -62,7 +62,6 @@ class CoachingDaysDay extends PolymerElement {
 
     ready() {
         super.ready();
-        console.log('-------Timeslots',this.timeslots)
     }
 
     _dayIdChanged(dayId) {
