@@ -73,6 +73,7 @@ class CoachingDaysDay extends PolymerElement {
                     day.__id__ = doc.id;
                     console.log('Setting Day', day);
                     this.set('day', day);
+                    this.message = null;
                 } else {
                     this.message = "Day not Found"
                 }
