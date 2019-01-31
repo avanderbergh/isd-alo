@@ -35,18 +35,27 @@ class CoachingCoacheesCoacheeCard extends PolymerElement {
         return html`
         <style include="shared-styles">
                 :host {
-                display: block;
-                padding: 10px;
+                    display: block;
+                    padding: 10px;
                 }
 
                 #coacheeCard {
-                    width: 120px;
+                    display: flex;
                     border-radius: 5px;
                     padding: 10px;
-                    text-align: center;
-                    color: #fff;
-                    background-color: var(--app-primary-color);
+                    color: #000;
+                    background-color: #fff;
                     cursor: pointer;
+                }
+
+                #coacheePhoto {
+                    width: 145px;
+                    text-align: center;
+                }
+
+                #coacheeSessions {
+                    display: flex;
+                    flex-direction: row;
                 }
 
                 h1 {
@@ -59,15 +68,15 @@ class CoachingCoacheesCoacheeCard extends PolymerElement {
                     line-height: 0;
                 }
             </style>
-
             <div id="coacheeCard" on-tap="_handleCardTapped">
-                <p>Name: [[coachee.displayName]]</p>
-                <p> Form: [[coachee.form]]</p>
+                <div id="coacheePhoto">
+                    <img src="[[coachee.namePhoto]]" alt="image">
+                    <p>[[coachee.displayName]]</p>
+                </div>
+                <div id="coachingSessions">
+                    <coaching-sessions name="sessions" user="[[surrogateUser]]"></coaching-sessions>
+                </div>
             </div>
-            <template is="dom-if" if="[[showDetails]]">
-            <coaching-sessions name="sessions" user="[[surrogateUser]]"></coaching-sessions>
-            </template>
-
         `;
     }
 

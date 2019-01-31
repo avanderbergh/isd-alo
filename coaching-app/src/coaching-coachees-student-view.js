@@ -82,19 +82,14 @@ class CoachingCoacheesStudentView extends PolymerElement {
                 
             <app-route route="{{route}}" pattern="/:coacheeId" data="{{routeData}}">
             </app-route>
-            <template is="dom-if" if="{{makeCoachSelectionVisible}}">
-                <paper-dropdown-menu label="Please select a coach" on-selected-item-changed="showSelected">
-                    <paper-listbox slot="dropdown-content" selected="{{formData.coach}}" attr-for-selected="coach1">
-                        <template is="dom-repeat" items="{{coaches}}" as="coach">
-                            <paper-item coach1="[[coach.__id__]]">[[coach.displayName]]</paper-item>
-                        </template>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-            </template>
-            <template is="dom-if" if="{{!makeCoachSelectionVisible}}">
-                <label>[[formData.coachName]]</label>
-                <coaching-sessions name="sessions" user="[[user]]"></coaching-sessions>
-            </template>
+            <paper-dropdown-menu label="Please select a coach" on-selected-item-changed="showSelected">
+                <paper-listbox slot="dropdown-content" selected="{{formData.coach}}" attr-for-selected="coach1">
+                    <template is="dom-repeat" items="{{coaches}}" as="coach">
+                        <paper-item coach1="[[coach.__id__]]">[[coach.displayName]]</paper-item>
+                    </template>
+                </paper-listbox>
+            </paper-dropdown-menu>
+            <coaching-sessions name="sessions" user="[[user]]"></coaching-sessions>
         `;
     }
 

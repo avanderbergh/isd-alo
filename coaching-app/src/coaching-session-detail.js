@@ -139,9 +139,13 @@ class CoachingSessionDetail extends PolymerElement {
     }
 
     _computeSessionPresenter(session){
-        const uid = firebase.auth().getUid();
-        console.log('Uid', uid);
-        return session.presenters.includes(uid);
+        if (session) {
+            const uid = firebase.auth().getUid();
+            console.log('Uid', uid);
+            return session.presenters.includes(uid);
+        } else {
+            return false;
+        }
     }
 
     _handleSessionTitleTapped() {

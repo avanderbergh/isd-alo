@@ -17,11 +17,9 @@ class CoachingCoacheesStaffView extends PolymerElement {
 
     static get template() {
         return html`
-            <dom-repeat items="{{coachees}}" as="coachee">
-                <template>
-                    <coaching-coachees-coachee-card coachee="[[coachee]]" user="[[user]]"></coaching-days-day-card>
-                </template>           
-            </dom-repeat>
+            <template is="dom-repeat" items="{{coachees}}" as="coachee">
+                <coaching-coachees-coachee-card coachee="[[coachee]]" user="[[user]]"></coaching-days-day-card>
+            </template>
         `;
     }
 

@@ -6,19 +6,22 @@ import '@polymer/polymer/lib/elements/dom-repeat.js';
 import '@polymer/paper-button/paper-button.js';
 import './coaching-coachees-student-view.js';
 import './coaching-coachees-staff-view.js';
-import '@polymer/polymer/lib/elements/dom-if.js'
+import './shared-styles.js';
 
 class CoachingCoachees extends PolymerElement {
     
     static get properties() {
         return {
-            user: Object
+            user: {
+                type: Object,
+                observer: '_userChanged'
+            }
         }
     }
 
     static get template() {
         return html`
-        <style include="shared-styles">
+            <style include="shared-styles">
                 :host {
                     display: block;
                     padding: 10px;
@@ -32,6 +35,8 @@ class CoachingCoachees extends PolymerElement {
                 }
             </style>
 
+            <h1>Coaching</h1>
+
             <template is="dom-if" if="{{user.claims.student}}">
                 <coaching-coachees-student-view user="[[user]]"></coaching-coachees-student-view>    
             </template>
@@ -39,6 +44,14 @@ class CoachingCoachees extends PolymerElement {
                 <coaching-coachees-staff-view user="[[user]]"></coaching-coachees-staff-view>    
             </template>
         `;
+    }
+
+    ready() {
+        super.ready();
+    }
+    
+    _userChanged(user) {
+        console.log('user', user);
     }
 }
 
