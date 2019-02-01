@@ -76,14 +76,16 @@ class CoachingSessionDetail extends PolymerElement {
                     <paper-textarea value="{{session.description}}" on-keydown="_checkForEnterOnSessionDescription"></paper-textarea>
                 </template>
                 <h3>Attendees ([[attendees.length]])</h3>
-                <div class="attendees-list">
-                    <template is="dom-repeat" items="{{attendees}}" as="attendee">
-                        <div class="attendee">
-                            <img src="[[attendee.namePhoto]]" alt="Photo"/>
-                            <p>[[attendee.displayName]]</p>
-                        </div>
-                    </template>
-                </div>
+                <template is="dom-if" if="{{user.claims.staff}}">
+                    <div class="attendees-list">
+                        <template is="dom-repeat" items="{{attendees}}" as="attendee">
+                            <div class="attendee">
+                                <img src="[[attendee.namePhoto]]" alt="Photo"/>
+                                <p>[[attendee.displayName]]</p>
+                            </div>
+                        </template>
+                    </div>
+                </template>
             </div>
         `;
     }

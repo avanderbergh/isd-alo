@@ -82,7 +82,6 @@ class CoachingDaysDay extends PolymerElement {
 
     _computeDisplayDate(day) {
         const start = day.startTime.toDate();
-        const end = day.endTime.toDate();
         const displayDate = format(start, 'MMMM d');
         return displayDate;
     }
@@ -98,9 +97,8 @@ class CoachingDaysDay extends PolymerElement {
             this.push('timeslots', {startTime: new Date(time), endTime: new Date(time + 900000)});
             time += 900000;
         }
-        console.log('-------Timeslots',this.timeslots)
-    
     }
+
 }
 
 customElements.define('coaching-days-day', CoachingDaysDay);

@@ -22,7 +22,8 @@ class CoachingSessionsSessionCard extends PolymerElement {
             workshop: Object,
             attending: {
                 type: Boolean,
-                computed: '_computeAttending(session)'
+                computed: '_computeAttending(session)',
+                notify: true
             },
             attendingLoading: {
                 type: Boolean,
@@ -45,13 +46,19 @@ class CoachingSessionsSessionCard extends PolymerElement {
     static get template() {
         return html`
             <style include="shared-styles">
+                html {
+                    --card-background-color: #fff;
+                    --card-title-color: var(--app-primary-color);
+                    --card-text-color: var(--google-grey-700);
+                }
+
                 #sessionCard {
                     border-radius: 5px;
                     padding: 10px;
-                    color: #fff;
+                    color: var(--card-text-color);
                     margin-right: 10px;
                     margin-bottom: 10px;
-                    background-color: var(--app-primary-color);
+                    background-color: var(--card-background-color);
                     display: flex;
                     flex-direction: row;
                 }
@@ -69,13 +76,9 @@ class CoachingSessionsSessionCard extends PolymerElement {
                     margin: 0px;
                 }
 
-                a {
-                    color: #fff;
+                a, a:visited{
+                    color: var(--card-title-color);
                     text-decoration: none;
-                }
-
-                a:visited {
-                    color: #fff;
                 }
 
                 p {
@@ -83,14 +86,14 @@ class CoachingSessionsSessionCard extends PolymerElement {
                 }
 
                 paper-spinner-lite {
-                    --paper-spinner-color: #fff;
+                    --paper-spinner-color: #000;
                 }
 
                 paper-progress {
                     margin-top: 10px;
                     width: 100%;
-                    --paper-progress-active-color: #fff;
-                    --paper-progress-container-color: #000;
+                    --paper-progress-active-color: var(--google-grey-700);
+                    --paper-progress-container-color: var(--google-grey-300);
                 }
 
             </style>
@@ -167,6 +170,7 @@ class CoachingSessionsSessionCard extends PolymerElement {
             console.log(result);
             this.attending = true;
             this.attendingLoading = false;
+            //this.dispatchEvent(new CustomEvent('attended'));
         })
     }
 
@@ -178,16 +182,40 @@ class CoachingSessionsSessionCard extends PolymerElement {
             console.log(result);
             this.attending = false;
             this.attendingLoading = false;
+            //this.dispatchEvent(new CustomEvent('attended'));
         })
     }
 
     _computeAttending(session) {
         const uid = firebase.auth().getUid()
         if (session.attendees) {
-            return session.attendees.includes(uid);
+            if (session.attendees.includes(uid)){
+                this._applyAttendingStyle();
+                return true;
+            } else {
+                this._applyNotAttendingStyle();
+                return false;
+            }
         } else {
+            this._applyNotAttendingStyle();
             return false;
         }
+    }
+
+    _applyAttendingStyle() {
+        this.updateStyles({
+            '--card-background-color': 'var(--app-primary-color)',
+            '--card-title-color': '#fff',
+            '--card-text-color': '#fff'
+        })
+    }
+
+    _applyNotAttendingStyle() {
+        this.updateStyles({
+            '--card-background-color': '#fff',
+            '--card-title-color': 'var(--app-primary-color)',
+            '--card-text-color' : 'var(--google-grey-700)'
+        })
     }
 
     _fetchPresenters(session) {

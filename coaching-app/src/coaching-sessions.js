@@ -38,9 +38,8 @@ class CoachingSessions extends PolymerElement {
         return html `
             <style include="shared-styles">
                 :host {
-                display: block;
-
-                padding: 10px;
+                    display: block;
+                    padding: 10px;
                 }
                 
                 #sessionsContainer {
@@ -51,11 +50,9 @@ class CoachingSessions extends PolymerElement {
 
             <h1>[[title]]</h1>
             <div id="sessionsContainer">
-                <dom-repeat items="{{sessions}}" as="session">
-                    <template>
-                        <coaching-sessions-session-card session="[[session]]"></coaching-sessions-session-card>
-                    </template>          
-                </dom-repeat>
+                <template is="dom-repeat" items="{{sessions}}" as="session">
+                    <coaching-sessions-session-card session="[[session]]" on-attended="_handleSessionAttended"></coaching-sessions-session-card>
+                </template>
             </div>
         `;
     }
@@ -84,7 +81,7 @@ class CoachingSessions extends PolymerElement {
         
         if (user) {
             console.log('filtering by user',user);
-            query = query.where('attendees', 'array-contains', `${user.uid}`)
+            query = query.where('attendees', 'array-contains', user.uid)
         }
 
         if (formYear) {
@@ -97,8 +94,13 @@ class CoachingSessions extends PolymerElement {
             query = query.where('startTime', '>=', timeslot.startTime)
                 .where('startTime', '<', timeslot.endTime);
         }
+        if (this.snapshotListener) {
+            this.snapshotListener();
+        }
+
         this.snapshotListener = query.orderBy('startTime')
             .onSnapshot(querySnapshot => {
+                const uid = firebase.auth().getUid();
                 this.set('sessions', []);
                 querySnapshot.forEach(doc => {
                     let session = doc.data();
@@ -120,6 +122,10 @@ class CoachingSessions extends PolymerElement {
         if (this.timeslot) {
             this._loadSessions(null, null, this.timeslot, formYear);
         }
+    }
+
+    _handleSessionAttended() {
+        this.dispatchEvent(new CustomEvent('attended'))
     }
 
 }
