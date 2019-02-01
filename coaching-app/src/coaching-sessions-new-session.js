@@ -264,7 +264,7 @@ class CoachingSessionsNewSession extends PolymerElement {
             let time = startTime;
             this.set('endTimes', []);
             while (time.getTime() < this.day.endTime.toDate().getTime()) {
-                time = addMinutes(time, 30);
+                time = addMinutes(time, 15);
                 this.push('endTimes', {date: time, display: format(time, 'H:mm')})
             }
         }

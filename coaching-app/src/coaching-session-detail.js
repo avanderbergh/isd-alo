@@ -2,6 +2,9 @@ import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
 import '@polymer/app-route/app-route.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-input/paper-textarea.js';
+import '@polymer/paper-button/paper-button.js';
+import '@polymer/paper-spinner/paper-spinner-lite.js';
+import './shared-styles.js';
 
 class CoachingSessionDetail extends PolymerElement {
     static get properties() {
@@ -22,11 +25,19 @@ class CoachingSessionDetail extends PolymerElement {
                 type: Boolean,
                 computed: '_computeSessionPresenter(session)'
             },
+            sessionAttendee: {
+                type: Boolean,
+                computed: '_computeSessionAttendee(session)'
+            },
             showEditSessionTitle: {
                 type: Boolean,
                 value: false
             },
             showEditSessionDescription: {
+                type: Boolean,
+                value: false
+            },
+            attendingLoading: {
                 type: Boolean,
                 value: false
             }
@@ -35,7 +46,7 @@ class CoachingSessionDetail extends PolymerElement {
 
     static get template() {
         return html`
-            <style>
+            <style include="shared-styles">
                 #session-container {
                     margin: 12px;
                 }
@@ -50,30 +61,40 @@ class CoachingSessionDetail extends PolymerElement {
                     padding: 10px;
                     align-content: center;
                 }
+
+                paper-button {
+                    color: #fff;
+                    background-color: var(--app-secondary-color);
+                }
             </style>
 
             <app-route route="{{route}}" pattern="/:sessionId" data="{{routeData}}">
             </app-route>
 
-            <div id="session-container">
-                <template is="dom-if" if="{{sessionPresenter}}">
-                    <p>You're presenting this session</p>
-                </template>
-                <h1>[[workshop.title]]</h1>
-                <template is="dom-if" if="{{!showEditSessionTitle}}">
-                    <h2 on-tap="_handleSessionTitleTapped">[[session.title]]</h2>
-                </template>
+            <div id="session-container" class="card">
+                <h1>[[workshop.title]]: <span on-tap="_handleSessionTitleTapped">[[session.title]]</span></h1>
                 <template is="dom-if" if="{{sessionPresenter}}">
                     <template is="dom-if" if="{{showEditSessionTitle}}">
                         <paper-input value="{{session.title}}" on-keydown="_checkForEnterOnSessionTitle"></paper-input>
                     </template>
                 </template>
-                <p>Location: [[space.name]]</p>
+                <p><b>Location:</b> [[space.name]]</p>
                 <template is="dom-if" if="{{!showEditSessionDescription}}">
                     <p on-tap="_handleSessionDescriptionTapped">[[session.description]]</p>
                 </template>
                 <template is="dom-if" if="{{showEditSessionDescription}}">
                     <paper-textarea value="{{session.description}}" on-keydown="_checkForEnterOnSessionDescription"></paper-textarea>
+                </template>
+                <template is="dom-if" if="{{attendingLoading}}">
+                    <paper-spinner-lite active></paper-spinner-lite>
+                </template>
+                <template is="dom-if" if="{{!attendingLoading}}">
+                    <template is="dom-if" if="{{!sessionAttendee}}">
+                        <paper-button on-tap="_handleAttendSessionTapped">Attend</paper-button>
+                    </template>
+                    <template is="dom-if" if="{{sessionAttendee}}">
+                        <paper-button on-tap="_handleUnattendSessionTapped">Leave</paper-button>
+                    </template>
                 </template>
                 <h3>Attendees ([[attendees.length]])</h3>
                 <template is="dom-if" if="{{user.claims.staff}}">
@@ -102,7 +123,7 @@ class CoachingSessionDetail extends PolymerElement {
         const sessionId = routeData.sessionId;
         if (sessionId) {
             const db = firebase.firestore();
-            db.collection('sessions').doc(sessionId).get().then(doc => {
+            db.collection('sessions').doc(sessionId).onSnapshot(doc => {
                 if (doc.exists) {
                     let session = doc.data();
                     session.__id__ = doc.id;
@@ -150,6 +171,16 @@ class CoachingSessionDetail extends PolymerElement {
         }
     }
 
+    _computeSessionAttendee(session) {
+        if (session) {
+            const uid = firebase.auth().getUid();
+            console.log('Uid', uid);
+            return session.attendees.includes(uid);
+        } else {
+            return false;
+        }
+    }
+
     _handleSessionTitleTapped() {
         if (this.sessionPresenter) this.showEditSessionTitle = true;
     }
@@ -182,6 +213,29 @@ class CoachingSessionDetail extends PolymerElement {
                 })
             }
         }
+    }
+
+    _handleAttendSessionTapped() {
+        this.attendingLoading = true;
+        firebase.functions().httpsCallable('attendSession')({
+            session: this.session.__id__
+        }).then(result => {
+            this.sessionAttendee = true;
+            this.attendingLoading = false;
+            //this.dispatchEvent(new CustomEvent('attended'));
+        })
+    }
+
+    _handleUnattendSessionTapped() {
+        this.attendingLoading = true;
+        firebase.functions().httpsCallable('unattendSession')({
+            session: this.session.__id__
+        }).then(result => {
+            console.log(result);
+            this.sessionAttendee = false;
+            this.attendingLoading = false;
+            //this.dispatchEvent(new CustomEvent('attended'));
+        })
     }
 }
 

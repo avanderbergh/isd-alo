@@ -33,7 +33,8 @@ class CoachingSessionsSessionCard extends PolymerElement {
             sessionFull: {
                 type: Boolean,
                 computed: '_computeFull(session)'
-            }
+            },
+            space: String
         }
     }
 
@@ -124,6 +125,7 @@ class CoachingSessionsSessionCard extends PolymerElement {
                         <template is="dom-repeat" items="{{presenters}}" as="presenter">
                             [[presenter.displayName]]
                         </template>
+                        ([[space]])
                     </p>
                     <paper-progress max="[[session.capacity]]" value="[[session.attendees.length]]"></paper-progress>
                 </div>
@@ -160,6 +162,7 @@ class CoachingSessionsSessionCard extends PolymerElement {
     _sessionChanged(session) {
         this._fetchWorkshop(session);
         this._fetchPresenters(session);
+        this._fetchSpace(session);
     }
 
     _handleAttendSessionTapped() {
@@ -227,6 +230,14 @@ class CoachingSessionsSessionCard extends PolymerElement {
                 this.push('presenters', user);
             })
         });
+    }
+
+    _fetchSpace(session) {
+        const db = firebase.firestore();
+        db.collection('spaces').doc(session.space).get().then(doc => {
+            const space = doc.data();
+            this.space = space.name;
+        })
     }
 
     _computeFull(session) {
