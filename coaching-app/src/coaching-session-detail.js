@@ -163,9 +163,13 @@ class CoachingSessionDetail extends PolymerElement {
 
     _computeSessionPresenter(session){
         if (session) {
-            const uid = firebase.auth().getUid();
-            console.log('Uid', uid);
-            return session.presenters.includes(uid);
+            if (session.presenters) {
+                const uid = firebase.auth().getUid();
+                console.log('Uid', uid);
+                return session.presenters.includes(uid);
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
@@ -173,9 +177,13 @@ class CoachingSessionDetail extends PolymerElement {
 
     _computeSessionAttendee(session) {
         if (session) {
-            const uid = firebase.auth().getUid();
-            console.log('Uid', uid);
-            return session.attendees.includes(uid);
+            if (session.attendees) {
+                const uid = firebase.auth().getUid();
+                console.log('Uid', uid);
+                return session.attendees.includes(uid);
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
