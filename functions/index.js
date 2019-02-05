@@ -21,50 +21,60 @@ exports.attendSession = functions.https.onCall((data, context) => {
         const db = admin.firestore();
         db.collection('sessions').doc(data.session).get().then(doc => {
             const sessionToAttend = doc.data();
-            db.collection('sessions')
-                .where('attendees', 'array-contains', uid)
-                .get().then(querySnapshot => {
-                    let overlap = false;
-                    querySnapshot.forEach(doc => {
-                        existingSession = doc.data();
-                        // Session starts during another session
-                        if (sessionToAttend.startTime.toMillis() >= existingSession.startTime.toMillis() && sessionToAttend.startTime.toMillis() < existingSession.endTime.toMillis()) {
-                            overlap = true;
-                            return;
-                        }
-                        // Session ends during another session
-                        if (sessionToAttend.endTime.toMillis() > existingSession.startTime.toMillis() && sessionToAttend.endTime.toMillis() <= existingSession.endTime.toMillis()) {
-                            overlap = true;
-                            return;
-                        }
-                        // Session falls inside existing session
-                        if (sessionToAttend.startTime.toMillis() > existingSession.startTime.toMillis() && sessionToAttend.endTime.toMillis() < existingSession.endTime.toMillis()) {
-                            overlap = true;
-                            return;
-                        }
-                        // Existing Session falls inside the session
-                        if (existingSession.startTime.toMillis() >= sessionToAttend.startTime.toMillis() && existingSession.endTime.toMillis() <= sessionToAttend.endTime.toMillis()) {
-                            overlap = true;
-                            return;
-                        }
-                    });
-                    if (!overlap) {
-                        db.collection('sessions').doc(data.session).update({
-                            attendees: admin.firestore.FieldValue.arrayUnion(uid)
-                        }).then(result => {
-                            resolve(true)
-                            return
-                        }).catch(error => {
-                            reject(error)
-                        })
-                    } else {
-                        resolve(false);
-                    }
-                    return;
-                }).catch(err => {
-                    console.error(err);
-                })
+            let numberOfAttendees = 0;
+            if (sessionToAttend.attendees) {
+                numberOfAttendees = sessionToAttend.attendees.length;
+            }
+            let sessionCapacity = parseInt(sessionToAttend.capacity);
+            if (numberOfAttendees >= sessionCapacity) {
+                resolve(false);
                 return;
+            } else {
+                db.collection('sessions')
+                    .where('attendees', 'array-contains', uid)
+                    .get().then(querySnapshot => {
+                        let overlap = false;
+                        querySnapshot.forEach(doc => {
+                            existingSession = doc.data();
+                            // Session starts during another session
+                            if (sessionToAttend.startTime.toMillis() >= existingSession.startTime.toMillis() && sessionToAttend.startTime.toMillis() < existingSession.endTime.toMillis()) {
+                                overlap = true;
+                                return;
+                            }
+                            // Session ends during another session
+                            if (sessionToAttend.endTime.toMillis() > existingSession.startTime.toMillis() && sessionToAttend.endTime.toMillis() <= existingSession.endTime.toMillis()) {
+                                overlap = true;
+                                return;
+                            }
+                            // Session falls inside existing session
+                            if (sessionToAttend.startTime.toMillis() > existingSession.startTime.toMillis() && sessionToAttend.endTime.toMillis() < existingSession.endTime.toMillis()) {
+                                overlap = true;
+                                return;
+                            }
+                            // Existing Session falls inside the session
+                            if (existingSession.startTime.toMillis() >= sessionToAttend.startTime.toMillis() && existingSession.endTime.toMillis() <= sessionToAttend.endTime.toMillis()) {
+                                overlap = true;
+                                return;
+                            }
+                        });
+                        if (!overlap) {
+                            db.collection('sessions').doc(data.session).update({
+                                attendees: admin.firestore.FieldValue.arrayUnion(uid)
+                            }).then(result => {
+                                resolve(true)
+                                return
+                            }).catch(error => {
+                                reject(error)
+                            })
+                        } else {
+                            resolve(false);
+                        }
+                        return;
+                    }).catch(err => {
+                        console.error(err);
+                    })
+                    return;
+            }
         }).catch(err => {
             console.error(err);
         })
