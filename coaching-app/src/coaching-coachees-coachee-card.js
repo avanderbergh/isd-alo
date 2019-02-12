@@ -1,5 +1,6 @@
 import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
-import './coaching-sessions'
+import './coaching-sessions';
+import './coaching-coachees-sessions.js';
 import '@polymer/paper-button/paper-button.js'
 import '@polymer/paper-tabs/paper-tabs.js';
 import '@polymer/iron-pages/iron-pages.js';
@@ -97,9 +98,9 @@ class CoachingCoacheesCoacheeCard extends PolymerElement {
                         </template>
                     </paper-tabs>
                     <div id="coacheeSessions">
-                        <iron-pages selected="{{selectedDay}}">
+                        <iron-pages style="width: 100%" selected="{{selectedDay}}">
                             <template is="dom-repeat" items="{{days}}" as="day">
-                                <coaching-sessions user="[[surrogateUser]]" day="[[day]]"></coaching-sessions>
+                                <coaching-coachees-sessions user-id="[[coachee.__id__]]" day="[[day]]"></coaching-coachees-sessions>
                             </template>
                         </iron-pages>
                     </div>
