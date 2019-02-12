@@ -25,6 +25,11 @@ service cloud.firestore {
     	allow read: if isSignedIn() && verifiedUser();
       allow create: if isStaff();
       allow update: if request.auth.uid in resource.data.presenters
+
+      match /attendance/{attended} {
+        allow read: if isStaff() || request.auth.uid == attended
+        allow write: if isStaff();
+      }
     }
     
     match /spaces/{space} {

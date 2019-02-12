@@ -1,6 +1,8 @@
 import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
 import './coaching-sessions'
 import '@polymer/paper-button/paper-button.js'
+import '@polymer/paper-tabs/paper-tabs.js';
+import '@polymer/iron-pages/iron-pages.js';
 
 class CoachingCoacheesCoacheeCard extends PolymerElement {
     static get properties() {
@@ -9,6 +11,7 @@ class CoachingCoacheesCoacheeCard extends PolymerElement {
                 type:Object,
                 value:{name:'placeholder'}
             },
+            days: Array,
             showDetails:{
                 type:Boolean,
                 value:false
@@ -20,8 +23,11 @@ class CoachingCoacheesCoacheeCard extends PolymerElement {
             surrogateUser:{
                 type:Object,
                 computed:'_surrogateUser(coachee)'
+            },
+            selectedDay: {
+                type: Number,
+                value: 1
             }
-
         }
     }
 
@@ -54,6 +60,7 @@ class CoachingCoacheesCoacheeCard extends PolymerElement {
                 }
 
                 #coacheeSessions {
+                    width: 100%;
                     display: flex;
                     flex-direction: row;
                 }
@@ -67,14 +74,35 @@ class CoachingCoacheesCoacheeCard extends PolymerElement {
                 h2 {
                     line-height: 0;
                 }
+
+                paper-tabs {
+                    --paper-tabs-selection-bar-color: var(--app-primary-color);
+                    width: 100%;
+                }
+
+                #tabs {
+                    display: block;
+                    width: 100%;
+                }
             </style>
             <div id="coacheeCard" on-tap="_handleCardTapped">
                 <div id="coacheePhoto">
                     <img src="[[coachee.namePhoto]]" alt="image">
                     <p>[[coachee.displayName]]</p>
                 </div>
-                <div id="coachingSessions">
-                    <coaching-sessions name="sessions" user="[[surrogateUser]]"></coaching-sessions>
+                <div id="tabs">
+                    <paper-tabs selected="{{selectedDay}}">
+                        <template is="dom-repeat" items="{{days}}" as="day">
+                            <paper-tab>[[day.displayDate]]</paper-tab>
+                        </template>
+                    </paper-tabs>
+                    <div id="coacheeSessions">
+                        <iron-pages selected="{{selectedDay}}">
+                            <template is="dom-repeat" items="{{days}}" as="day">
+                                <coaching-sessions user="[[surrogateUser]]" day="[[day]]"></coaching-sessions>
+                            </template>
+                        </iron-pages>
+                    </div>
                 </div>
             </div>
         `;

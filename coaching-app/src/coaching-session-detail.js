@@ -4,6 +4,7 @@ import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-input/paper-textarea.js';
 import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-spinner/paper-spinner-lite.js';
+import './coaching-session-attendance.js';
 import './shared-styles.js';
 
 class CoachingSessionDetail extends PolymerElement {
@@ -40,6 +41,10 @@ class CoachingSessionDetail extends PolymerElement {
             attendingLoading: {
                 type: Boolean,
                 value: false
+            },
+            sessionFull: {
+                type: Boolean,
+                computed: '_computeSessionFull(session)'
             }
         }
     }
@@ -90,22 +95,22 @@ class CoachingSessionDetail extends PolymerElement {
                 </template>
                 <template is="dom-if" if="{{!attendingLoading}}">
                     <template is="dom-if" if="{{!sessionAttendee}}">
-                        <paper-button on-tap="_handleAttendSessionTapped">Attend</paper-button>
+                        <template is="dom-if" if="{{!sessionFull}}">
+                            <paper-button on-tap="_handleAttendSessionTapped">Attend</paper-button>
+                        </template>
+                        <template is="dom-if" if="{{sessionFull}}">
+                            <div>
+                                <p><b>This session is full!</b></p>
+                            </div>
+                        </template>
                     </template>
                     <template is="dom-if" if="{{sessionAttendee}}">
                         <paper-button on-tap="_handleUnattendSessionTapped">Leave</paper-button>
                     </template>
                 </template>
-                <h3>Attendees ([[attendees.length]])</h3>
-                <template is="dom-if" if="{{user.claims.staff}}">
-                    <div class="attendees-list">
-                        <template is="dom-repeat" items="{{attendees}}" as="attendee">
-                            <div class="attendee">
-                                <img src="[[attendee.namePhoto]]" alt="Photo"/>
-                                <p>[[attendee.displayName]]</p>
-                            </div>
-                        </template>
-                    </div>
+                <h3>[[session.attendees.length]] Attendees</h3>
+                <template is="dom-if" if="{{sessionPresenter}}">
+                    <coaching-session-attendance session="[[session]]"></coaching-session-attendance>
                 </template>
             </div>
         `;
@@ -148,16 +153,6 @@ class CoachingSessionDetail extends PolymerElement {
                 const space = doc.data();
                 this.set('space', space);
             })
-            if (session.hasOwnProperty('attendees')) {
-                this.set('attendees', []);
-                session.attendees.forEach(attendeeId => {
-                    db.collection('users').doc(attendeeId).get().then(doc => {
-                        let user = doc.data();
-                        console.log('Attendee', user);
-                        this.push('attendees', user);
-                    })
-                })
-            }
         }
     }
 
@@ -244,6 +239,14 @@ class CoachingSessionDetail extends PolymerElement {
             this.attendingLoading = false;
             //this.dispatchEvent(new CustomEvent('attended'));
         })
+    }
+
+    _computeSessionFull(session) {
+        if (session.attendees) {
+            return session.attendees.length >= parseInt(session.capacity)
+        } else {
+            return false;
+        }
     }
 }
 

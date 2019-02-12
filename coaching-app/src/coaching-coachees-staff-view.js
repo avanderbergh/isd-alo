@@ -8,6 +8,7 @@ class CoachingCoacheesStaffView extends PolymerElement {
                 type:Object,
                 value:[]
             },
+            days: Array,
             user:{
                 type:Object,
                 value:{}
@@ -18,7 +19,7 @@ class CoachingCoacheesStaffView extends PolymerElement {
     static get template() {
         return html`
             <template is="dom-repeat" items="{{coachees}}" as="coachee">
-                <coaching-coachees-coachee-card coachee="[[coachee]]" user="[[user]]"></coaching-days-day-card>
+                <coaching-coachees-coachee-card coachee="[[coachee]]" user="[[user]]" days="[[days]]"></coaching-days-day-card>
             </template>
         `;
     }

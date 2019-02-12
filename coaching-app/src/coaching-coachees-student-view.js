@@ -9,6 +9,7 @@ import '@polymer/polymer/lib/elements/dom-repeat.js';
 import '@polymer/paper-button/paper-button.js';
 import './coaching-sessions';
 import '@polymer/polymer/lib/elements/dom-if.js'
+import '@polymer/paper-tabs/paper-tabs.js';
 
 class CoachingCoacheesStudentView extends PolymerElement {
     static get properties() {
@@ -40,6 +41,10 @@ class CoachingCoacheesStudentView extends PolymerElement {
             makeSessionsVisible: {
                 type: Boolean,
                 computed: '_computeMakeSessionsVisible(makeSessionsVisible)'
+            },
+            selected: {
+                type: Number,
+                value: 0
             }
 
         }
@@ -89,6 +94,11 @@ class CoachingCoacheesStudentView extends PolymerElement {
                     </template>
                 </paper-listbox>
             </paper-dropdown-menu>
+            <div>
+                <paper-tabs selected="{{selected}}">
+                    
+                </paper-tabs>
+            </div>
             <coaching-sessions name="sessions" user="[[user]]"></coaching-sessions>
         `;
     }
