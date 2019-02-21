@@ -85,13 +85,27 @@ exports.unattendSession = functions.https.onCall((data, context) => {
     return new Promise((resolve, reject) => {
         const uid = context.auth.uid;
         const db = admin.firestore();
-        db.collection('sessions').doc(data.session).update({
-            attendees: admin.firestore.FieldValue.arrayRemove(uid)
-        }).then(result => {
-            resolve(result);
-            return
+        db.collection('sessions').doc(data.session).get().then(doc => {
+            const session = doc.data();
+            if (Date.now() > session.startTime.toDate() - 300000) {
+                resolve(false);
+                return;
+            } else {
+                console.log('The session has not started');
+                db.collection('sessions').doc(data.session).update({
+                    attendees: admin.firestore.FieldValue.arrayRemove(uid)
+                }).then(result => {
+                    resolve(result);
+                    return
+                }).catch(error => {
+                    reject(error);
+                    return;
+                })
+                return;
+            }
         }).catch(error => {
             reject(error);
+            return;
         })
     })
 })

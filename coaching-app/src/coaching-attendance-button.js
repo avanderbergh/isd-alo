@@ -9,7 +9,11 @@ class CoachingAttendanceButton extends PolymerElement {
                 value: false
             },
             sessionId: String,
-            userId: String,
+            userId: {
+                type: String,
+                observer: '_userIdChanged'
+
+            },
             user: {
                 type: Object,
                 observer: '_userChanged'
@@ -62,21 +66,26 @@ class CoachingAttendanceButton extends PolymerElement {
 
     ready() {
         super.ready();
-        const db = firebase.firestore();
-        db.collection('users').doc(this.userId).onSnapshot(doc => {
-            let user = doc.data()
-            this.set('user', user);
-        })
-        db.collection('sessions').doc(this.sessionId)
-            .collection('attendance').doc(this.userId)
-            .onSnapshot(doc => {
-                console.log('attendance doc', doc);
-                if (doc.exists) {
-                    this.attendance = doc.data().value;
-                } else {
-                    this.attendance = false;
-                }
+    }
+
+    _userIdChanged(userId) {
+        if (userId) {
+            const db = firebase.firestore();
+            db.collection('users').doc(userId).onSnapshot(doc => {
+                let user = doc.data()
+                this.set('user', user);
             })
+            db.collection('sessions').doc(this.sessionId)
+                .collection('attendance').doc(this.userId)
+                .onSnapshot(doc => {
+                    console.log('attendance doc', doc);
+                    if (doc.exists) {
+                        this.attendance = doc.data().value;
+                    } else {
+                        this.attendance = false;
+                    }
+                })
+        }
     }
 
     _userChanged(user) {

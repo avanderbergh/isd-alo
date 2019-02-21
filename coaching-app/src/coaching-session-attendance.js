@@ -7,7 +7,8 @@ class CoachingSessionAttendance extends PolymerElement {
     static get properties() {
         return {
             session: {
-                type: Object
+                type: Object,
+                observer: '_sessionChanged'
             },
             attendees: Array
         }
