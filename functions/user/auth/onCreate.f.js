@@ -10,9 +10,10 @@ try { admin.initializeApp(
         }) 
     }
  catch (e) { console.log(e)}
-*/
+
 
  /* PRODUCTION SETUP */
+ 
 var serviceAccount = require("../../serviceAccountKeyProduction.json");
 
 try { admin.initializeApp(
@@ -25,8 +26,8 @@ catch (e) { console.log(e)}
 
 
 
-*/
- /* PRODUCTION SETUP */
+
+ /* PRODUCTION SETUP 
 var serviceAccount = require("../../serviceAccountKeyProduction.json");
 
 try { admin.initializeApp(
@@ -36,7 +37,7 @@ try { admin.initializeApp(
     }) 
 }
 catch (e) { console.log(e)}
-
+*/
 
 
 // Get a database reference
@@ -55,10 +56,10 @@ var ref = db.collection("users");
 /* test locally with 
 firebase functions:shell
 userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de'})
-userAuthOnCreate({ displayName: 'Ellie De Borde', email: 'el53de17@isdedu.de'})
+userAuthOnCreate({ displayName: 'Ellie De Borde', email: 'el53de17@isdedu.de', uid: '6A3paLCmHnOs3VUPTEQSrlE780t1'})
 
 dev
-    userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de', uid: 'FLfKY4nnXvMSVcPwgghGZdBNdrC2'})
+    userAuthOnCreate({ displayName: 'Michael De Borde', email: 'debordem@isdedu.de', uid: 'bDAGyLUFy7bfRTGslROfJll64FW2'})
 */
 
 /* set up for api call*/
@@ -71,11 +72,12 @@ const util = require('../../utility/pass.js');
 
 
 exports = module.exports = functions.auth.user().onCreate((user) => {
+   
     return new Promise(
         (resolve, reject) => {
            
                 var promises = [];
-
+                console.log(user);
                 if (user.email && user.uid){
                     const update_one = updateOne(user);
                     promises.push (update_one);
@@ -99,18 +101,19 @@ exports = module.exports = functions.auth.user().onCreate((user) => {
                 
 
 
-function updateMany(){
+function updateMany(delay){
     return new Promise(
         (resolve, reject) => {
                 db.collection("users").get()
                     .then((querySnapshot) => {
                         var promises = [];
+                        var delay = 500;
                         querySnapshot.forEach((doc) => {
                             // doc.data() is never undefined for query doc snapshots
                             //console.log(doc.id, " => ", doc.data().displayName);
                             var user = doc.data();
                             user.uid = doc.id;
-                            const update_user = updateOne(user);
+                            const update_user = updateOne(user,delay += 500);
                             promises.push (update_user);
 
                         })
@@ -127,10 +130,17 @@ function updateMany(){
 
 
 
-function updateOne(user,auth){
+function updateOne(user,delay = 0){
     var userType = {};
-
-    return new Promise(
+    console.log(delay);
+    const sleep = d => {
+        return new Promise((resolve, reject) => {
+            setTimeout(resolve, d)
+        })
+    }
+    sleep(delay).then(() => {
+        
+        return new Promise(
         (resolve, reject) => {
                 util.wcbs22_get_token()
                 .then((auth) => {
@@ -138,33 +148,34 @@ function updateOne(user,auth){
                 queryParams={ headers:{'Authorization':'Bearer ' +auth.access_token, 
                             'User-Agent':'isd-sync-services'},
                             method:"GET"};
-
+    
                 studentQueryUrl = util.wcbs22_prepare_query({
                     endpoint: "Pupils",
-                    expand: "Form($select = Code)",
+                    expand: "Form($select = Code), Form($expand=FormYear($select=YearNumber))",
                     filter: "Name/EmailAddress eq '"+user.email+"' and Form/AcademicYear eq 2018",
                     select: "NameId"}); // prepare query
-
+    
                 staffQueryUrl = util.wcbs22_prepare_query({
                     endpoint: "Staff",
                     expand: "Name($select = Id)",
                     filter: "InternalEmailAddress  eq '"+user.email+"'",
                     select: "Code"}); // prepare query
-
+    
                         
                 const student = util.queryAPI(studentQueryUrl,queryParams,"pupil-Query");
                 
                 const staff = util.queryAPI(staffQueryUrl,queryParams,"staff-Query");
         
                 return Promise.all([student,staff])
-
+    
             })
             .then((results) => {
                 
                 if (results[0].value.length >=1)
                     { userType = {type : 'student', 
                                   id: results[0].value[0].NameId,
-                                  form: results[0].value[0].Form.Code}}
+                                  form: results[0].value[0].Form.Code,
+                                  yearNumber: results[0].value[0].Form.FormYear.YearNumber}}
             
                 else if (results[1].value.length >=1)
                     { userType = {type : 'staff', 
@@ -186,7 +197,7 @@ function updateOne(user,auth){
             })
             .then((userType)=>{
                 var newPromises = [];
-
+    
                 const photo = insertUserPhoto(user.uid,userType.id);
                 newPromises.push(photo);
                 if (userType.type === "student")
@@ -194,24 +205,29 @@ function updateOne(user,auth){
                     const form = insertStudentForm(user.uid,userType);
                     newPromises.push(form); 
                 }
-
+    
                 return Promise.all(newPromises);
             })
             .then(()=>{
                 return resolve();
             })
             .catch(error=>console.log(error));
-        })  
-            
-        }
+        }) 
+    })
+    .catch(error=>console.log(error));
+}
+
 
 
 function insertStudentForm(uid,userData){
     return new Promise(
         (resolve, reject) => {
             var docRef = db.collection("users").doc(uid);
-            
-            return resolve (docRef.set({form:userData.form},{ merge: true }));
+           
+            return resolve (docRef.set({
+                form:userData.form,
+                yearNumber:userData.yearNumber}
+                ,{ merge: true }));
             })
             .catch((error) => {
                 console.log("Error getting document:", error);
@@ -293,6 +309,7 @@ function getClaim(uid){
         
         admin.auth().getUser(uid).then((userRecord) => {
         // The claims can be accessed on the user record.
+        console.log(userRecord);
         if (typeof userRecord.customClaims !== 'undefined'){
 
             staff = (typeof userRecord.customClaims.staff !== 'undefined') ? true : false;
@@ -317,17 +334,17 @@ function setClaim(user, customClaims){
     return new Promise(
         (resolve, reject) => {
 
-    return admin.auth().setCustomUserClaims(user.uid, customClaims)
-    .then(() => {
-    // Update real-time database to notify client to force refresh.
-    const metadataRef = admin.database().ref("metadata/" + user.uid);
-    // Set the refresh time to the current UTC timestamp.
-    // This will be captured on the client to force a token refresh.
-    return resolve (metadataRef.set({refreshTime: new Date().getTime()}));
-    
-    })
-    .catch(error => {
-    console.log(error);
+            return admin.auth().setCustomUserClaims(user.uid, customClaims)
+            .then(() => {
+            // Update real-time database to notify client to force refresh.
+            const metadataRef = admin.database().ref("metadata/" + user.uid);
+            // Set the refresh time to the current UTC timestamp.
+            // This will be captured on the client to force a token refresh.
+            return resolve (metadataRef.set({refreshTime: new Date().getTime()}));
+            
+            })
+            .catch(error => {
+            console.log(error);
     });
 })  
 }
