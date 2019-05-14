@@ -112,7 +112,7 @@ exports.unattendSession = functions.https.onCall((data, context) => {
 
 exports.addUserRole = functions.https.onCall((data, context) => {
     return new Promise((resolve, reject) => {
-        if (context.auth.token.email === 'vanderbergha@isdedu.de') {
+        if (context.auth.token.admin) {
             try {
                 let object = {admin: true};
                 object[data.role] = true;

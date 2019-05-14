@@ -108,13 +108,14 @@ class CoachingApp extends PolymerElement {
               <app-toolbar>Menu</app-toolbar>
               <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
                 <a name="days" href="[[rootPath]]days">Home</a>                
+                <a name="coachees" href="[[rootPath]]coachees">Coaching</a>                
                 <template is="dom-if" if="{{user.claims.staff}}">
                   <a name="workshops" href="[[rootPath]]workshops">Workshops</a>
                 </template>
                 <template is="dom-if" if="{{user.claims.admin}}">
                   <a name="spaces" href="[[rootPath]]spaces">Spaces</a>
+                  <a name="analytics" href="[[rootPath]]analytics">Analytics</a>
                 </template>
-                <a name="coachees" href="[[rootPath]]coachees">Coaching</a>                
               </iron-selector>
             </app-drawer>
 
@@ -130,6 +131,7 @@ class CoachingApp extends PolymerElement {
               </app-header>
 
               <iron-pages selected="[[page]]" attr-for-selected="name" role="main">
+                <coaching-analytics name="analytics" user="[[user]]"></coaching-analytics>
                 <coaching-workshops name="workshops" user="[[user]]"></coaching-workshops>
                 <coaching-spaces name="spaces"></coaching-spaces>
                 <coaching-days name="days" route="[[subroute]]" user="[[user]]"></coaching-days>
@@ -186,7 +188,7 @@ class CoachingApp extends PolymerElement {
     console.log('Page changed to', page);
     if (!page) {
       this.page = 'days';
-    } else if (['dashboard', 'workshops', 'spaces','days', 'sessions', 'users', 'coachees'].indexOf(page) !== -1) {
+    } else if (['dashboard', 'workshops', 'spaces','days', 'sessions', 'users', 'coachees', 'analytics'].indexOf(page) !== -1) {
       this.page = page;
       console.log('page is now', this.page);
     } else {
@@ -228,6 +230,9 @@ class CoachingApp extends PolymerElement {
         break;
       case 'coachees':
         import('./coaching-coachees.js');
+        break;
+      case 'analytics':
+        import('./coaching-analytics.js');
         break;
       case 'view404':
         import('./coaching-view404.js');
