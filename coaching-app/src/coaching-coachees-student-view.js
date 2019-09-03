@@ -128,7 +128,7 @@ class CoachingCoacheesStudentView extends PolymerElement {
     loadUserCoaches() {
         const db = firebase.firestore();
         this.snapshotListener = db.collection('users')
-            .where('assignedForm', '==', this.user.form)
+            .where('isCoach', '==', true)
             .orderBy('displayName')
             .onSnapshot(querySnapshot => {
                 this.set('coaches', []);

@@ -85,6 +85,7 @@ class CoachingDays extends PolymerElement {
     _loadDays() {
         const db = firebase.firestore();
         this.snapshotListener = db.collection('days')
+            .where("show", "==", true)
             .orderBy('startTime')
             .onSnapshot(querySnapshot => {
                 this.set('days', []);

@@ -115,6 +115,7 @@ class CoachingApp extends PolymerElement {
                 <template is="dom-if" if="{{user.claims.admin}}">
                   <a name="spaces" href="[[rootPath]]spaces">Spaces</a>
                   <a name="analytics" href="[[rootPath]]analytics">Analytics</a>
+                  <a name="users" href="[[rootPath]]users">Users</a>
                 </template>
               </iron-selector>
             </app-drawer>
@@ -125,7 +126,7 @@ class CoachingApp extends PolymerElement {
               <app-header slot="header" condenses="" reveals="" effects="waterfall">
                 <app-toolbar>
                   <paper-icon-button icon="my-icons:menu" drawer-toggle=""></paper-icon-button>
-                  <div main-title="">ISD Coaching</div>
+                  <div main-title="">ISD ALO</div>
                   <coaching-user-menu user="[[user]]" on-sign-out="_handleSignOut"></coaching-user-menu>
                 </app-toolbar>
               </app-header>

@@ -1,0 +1,122 @@
+const serviceAccount = require("../keys/isdcoaching-firebase-adminsdk-sr31i-73c1c90637.json");
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const util = require("./pass");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://isdcoaching.firebaseio.com"
+});
+
+const db = admin.firestore();
+
+bumpYearNumber = async () => {
+  const usersSnapshot = await db
+    .collection("users")
+    .where("yearNumber", ">", 0)
+    .get();
+  usersSnapshot.forEach(async userDoc => {
+    let user = userDoc.data();
+    user.id = userDoc.id;
+    console.log(user.displayName, user.yearNumber);
+    await db
+      .collection("users")
+      .doc(user.id)
+      .update({
+        yearNumber: ++user.yearNumber
+      });
+    console.log(user.yearNumber);
+  });
+};
+
+removeYear13 = async () => {
+  const usersSnapshot = await db
+    .collection("users")
+    .where("yearNumber", "==", 13)
+    .get();
+  usersSnapshot.forEach(async userDoc => {
+    let user = userDoc.data();
+    user.id = userDoc.id;
+    await admin.auth().deleteUser(user.id);
+    console.log("deleted user", user.displayName);
+    await db
+      .collection("users")
+      .doc(user.id)
+      .delete();
+    console.log("deleted user doc");
+  });
+};
+
+updateUser = async uid => {
+//   const usersSnapshot = await db
+//     .collection("users")
+//     .where("yearNumber", ">=", 0)
+//     .get();
+//   usersSnapshot.forEach(userDoc => {
+//     let user = userDoc.data();
+//     user.id = userDoc.id;
+//   });
+  const user = await admin.auth().getUser(uid);
+  console.log(user);
+  const auth = await util.wcbs22_get_token();
+  let queryParams = {
+    headers: {
+      Authorization: "Bearer " + auth.access_token,
+      "User-Agent": "isd-sync-services"
+    },
+    method: "GET"
+  };
+  studentQueryUrl = util.wcbs22_prepare_query({
+    endpoint: "Pupils",
+    expand:
+      "Form($select = Code), Form($expand=FormYear($select=YearNumber))",
+    filter:
+      "Name/EmailAddress eq '" +
+      user.email +
+      "' and Form/AcademicYear eq 2019",
+    select: "NameId"
+  });
+  const student = await util.queryAPI(
+    studentQueryUrl,
+    queryParams,
+    "pupil-Query"
+  );
+  console.log("student", student.value[0].Form.FormYear.YearNumber);
+
+};
+
+const addCoachFlag = async () => {
+  const users = await db.collection("users").get();
+  users.forEach(async userDoc => {
+    let user = userDoc.data();
+    user.id = userDoc.id;
+    if (!user.yearNumber) {
+      console.log(user.displayName, "is a teacher");
+      await db.collection("users").doc(user.id).update({
+        isCoach: true
+      })
+    }
+
+  })
+}
+
+const removeCoaches = async () => {
+  const students = await db.collection("users").get();
+  students.forEach(async studentDoc => {
+    let student = studentDoc.data();
+    student.id = studentDoc.id;
+    if (student.coach) {
+      try {
+        await db.collection("users").doc(student.id).update({
+          coach: admin.firestore.FieldValue.delete()
+        });
+      } catch(err) {
+        console.log(err);
+      }
+      console.log(student.displayName);
+    }
+  });
+}
+
+// updateUser("agcfluaSnLRz41BzVDgpKWuA4AB2");
+removeCoaches();

@@ -1,0 +1,1 @@
+{"@odata.context":"https://3sys.isdedu.de/Wcbs.API.2.2/api/$metadata#pupil-details(NameId,Form,Form(Code,FormYear,FormYear(YearNumber)))","value":[{"NameId":1926959484,"Form":{"Code":"10.4","FormYear":{"@odata.type":"#Wcbs.Domain.Models.Projections.FormYear","YearNumber":10}}}]}
