@@ -1,7 +1,8 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const util = require("./utility/pass");
-const serviceAccount = require("./keys/isdcoaching-firebase-adminsdk-sr31i-73c1c90637.json");
+const serviceAccount = require("./keys/isdcoaching-dev-firebase-adminsdk-ylcvn-b2b91cfed5.json");
+const sgMail = require("@sendgrid/mail");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -13,6 +14,7 @@ const settings = {
 };
 admin.firestore().settings(settings);
 const db = admin.firestore();
+sgMail.setApiKey(functions.config().sendgrid.key);
 
 exports.attendSession = functions.https.onCall((data, context) => {
   return new Promise((resolve, reject) => {
@@ -143,6 +145,73 @@ exports.unattendSession = functions.https.onCall((data, context) => {
         return;
       });
   });
+});
+
+exports.cancelSession = functions.https.onCall((data, context) => {
+  return new Promise(resolve => {
+    return db.collection("sessions")
+      .doc(data.id)
+      .get()
+      .then(doc => {
+        if (!doc.exists) throw(new Error("Session does not exist"));
+        const session = doc.data();
+        if (!session.presenters.includes(context.auth.uid)) {
+          throw(new Error("Unauthorized!"));
+        }
+        resolve(session);
+        return false;
+      });
+  })
+    .then(session => {
+      if (!session.attendees) return false;
+      let notifyAttendeesPromises = [];
+      session.attendees.forEach(attendeeId => {
+        notifyAttendeesPromises.push(
+          new Promise(resolve => {
+            return db.collection("users")
+              .doc(attendeeId)
+              .get()
+              .then(attendeeDoc => {
+                const attendee = attendeeDoc.data();
+                const text = `Dear ${attendee.displayName},\n
+                The session ALO session "${session.title}" you signed up for has been cancelled.\n
+                Please use the ALO app to sign up for a new session during that time.\n
+                \n
+                The ALO Team.`;
+
+                const html = `Dear ${attendee.displayName},<br/>
+                The session ALO session "${session.title}" you signed up for has been cancelled.<br/>
+                Please use the <a href="https://isdcoaching.firebaseapp.com">ALO app</a> to sign up for a new session during that time.<br/>
+                <br/>
+                The ALO Team.`;
+                const msg = {
+                  to: attendee.email,
+                  from: "noreply@isdedu.de",
+                  subject: `Session ${session.title} Cancelled`,
+                  text: text,
+                  html: html
+                };
+                console.log("Sending mail to attendee", attendee.email);
+                sgMail.send(msg, res => {
+                  console.log(res);
+                  resolve();
+                });
+                return false;
+              });
+          })
+        );
+      });
+      return Promise.all(notifyAttendeesPromises);
+    })
+    .then(() => {
+      db.collection("sessions")
+        .doc(data.id)
+        .delete();
+      return false;
+    })
+    .catch(err => {
+      console.error("Error while cancelling session", err);
+    });
 });
 
 exports.addUserRole = functions.https.onCall((data, context) => {

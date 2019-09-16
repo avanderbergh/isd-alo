@@ -155,7 +155,8 @@ class CoachingSessionsSessionCard extends PolymerElement {
     _computeDisplayTime(session) {
         const start = session.startTime.toDate();
         const end = session.endTime.toDate();
-        const displayTime = format(start, "H:mm") + ' - ' + format(end, "H:mm");
+        const displayEnd = new Date(end.valueOf() - 1000 * 60 * 5);
+        const displayTime = format(start, "H:mm") + ' - ' + format(displayEnd, "H:mm");
         return displayTime;
     }
 

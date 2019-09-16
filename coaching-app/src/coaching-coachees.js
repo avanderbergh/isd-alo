@@ -37,7 +37,7 @@ class CoachingCoachees extends PolymerElement {
         }
       </style>
 
-      <h1>Coaching</h1>
+      <h1>Advisory</h1>
 
       <template is="dom-if" if="{{user.claims.student}}">
         <coaching-coachees-student-view

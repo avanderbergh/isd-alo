@@ -70,7 +70,7 @@ class CoachingDaysDayCard extends PolymerElement {
     }
 
     _handleCardTapped() {
-        window.history.pushState({}, 'ISD Coaching', "days/" + this.day.__id__);
+        window.history.pushState({}, 'ALO', "days/" + this.day.__id__);
         window.dispatchEvent(new CustomEvent('location-changed'));
     }
 }

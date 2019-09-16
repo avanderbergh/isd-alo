@@ -11,6 +11,9 @@
   ],
   "extends": "eslint:recommended",
   "rules": {
+
+    "no-async-promise-executor": "off",
+    
     // Removed rule "disallow the use of console" from recommended eslint rules
     "no-console": "off",
 

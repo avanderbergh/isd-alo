@@ -304,7 +304,7 @@ class CoachingSessionsNewSession extends PolymerElement {
             date: time,
             display: format(time, "H:mm")
           });
-          time = addMinutes(time, 15);
+          time = addMinutes(time, 35);
         }
       }
     }
@@ -313,10 +313,12 @@ class CoachingSessionsNewSession extends PolymerElement {
   _startTimeChanged(startTime) {
     if (startTime) {
       let time = startTime;
+      let displayEndTime;
       this.set("endTimes", []);
       while (time.getTime() < this.day.endTime.toDate().getTime()) {
-        time = addMinutes(time, 15);
-        this.push("endTimes", { date: time, display: format(time, "H:mm") });
+        displayEndTime = addMinutes(time, 30);
+        time = addMinutes(time, 35);
+        this.push("endTimes", { date: time, display: format(displayEndTime, "H:mm") });
       }
     }
   }
@@ -338,7 +340,7 @@ class CoachingSessionsNewSession extends PolymerElement {
   }
 
   _handleNewWorkshopTapped() {
-    window.history.pushState({}, "ISD Coaching", "workshops/");
+    window.history.pushState({}, "ALO", "workshops/");
     window.dispatchEvent(new CustomEvent("location-changed"));
   }
 

@@ -108,7 +108,7 @@ class CoachingApp extends PolymerElement {
               <app-toolbar>Menu</app-toolbar>
               <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
                 <a name="days" href="[[rootPath]]days">Home</a>                
-                <a name="coachees" href="[[rootPath]]coachees">Coaching</a>                
+                <a name="advisory" href="[[rootPath]]advisory">Advisory</a>                
                 <template is="dom-if" if="{{user.claims.staff}}">
                   <a name="workshops" href="[[rootPath]]workshops">Workshops</a>
                 </template>
@@ -137,7 +137,7 @@ class CoachingApp extends PolymerElement {
                 <coaching-spaces name="spaces"></coaching-spaces>
                 <coaching-days name="days" route="[[subroute]]" user="[[user]]"></coaching-days>
                 <coaching-session-detail name="sessions" route="[[subroute]]" user="[[user]]"></coaching-session-detail>
-                <coaching-coachees name="coachees" user="[[user]]"></coaching-coachees>
+                <coaching-coachees name="advisory" user="[[user]]"></coaching-coachees>
                 <coaching-users name="users" user="[[user]]"><coaching-users>
                 <coaching-view404 name="view404"></coaching-view404>
                 </iron-pages>
@@ -189,7 +189,7 @@ class CoachingApp extends PolymerElement {
     console.log('Page changed to', page);
     if (!page) {
       this.page = 'days';
-    } else if (['dashboard', 'workshops', 'spaces','days', 'sessions', 'users', 'coachees', 'analytics'].indexOf(page) !== -1) {
+    } else if (['dashboard', 'workshops', 'spaces','days', 'sessions', 'users', 'advisory', 'analytics'].indexOf(page) !== -1) {
       this.page = page;
       console.log('page is now', this.page);
     } else {
@@ -229,7 +229,7 @@ class CoachingApp extends PolymerElement {
       case 'users':
         import('./coaching-users.js');
         break;
-      case 'coachees':
+      case 'advisory':
         import('./coaching-coachees.js');
         break;
       case 'analytics':

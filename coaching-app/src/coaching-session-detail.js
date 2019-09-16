@@ -45,6 +45,10 @@ class CoachingSessionDetail extends PolymerElement {
             sessionFull: {
                 type: Boolean,
                 computed: '_computeSessionFull(session)'
+            },
+            cancellingSession: {
+                type: Boolean,
+                value: false
             }
         }
     }
@@ -111,6 +115,19 @@ class CoachingSessionDetail extends PolymerElement {
                 <h3>[[session.attendees.length]] Attendees</h3>
                 <template is="dom-if" if="{{sessionPresenter}}">
                     <coaching-session-attendance session="[[session]]"></coaching-session-attendance>
+                </template>
+                <template is="dom-if" if="{{sessionPresenter}}">
+                    <paper-button
+                        on-tap="_handleCancelSessionTapped"
+                        disabled="{{cancellingSession}}"
+                        >
+                        <template is="dom-if" if="{{!cancellingSession}}">
+                            Cancel Session
+                        </template>
+                        <template is="dom-if" if="{{cancellingSession}}">
+                            Cancelling Session
+                        </template>
+                    </paper-button>
                 </template>
             </div>
         `;
@@ -242,11 +259,25 @@ class CoachingSessionDetail extends PolymerElement {
     }
 
     _computeSessionFull(session) {
-        if (session.attendees) {
+        if (session && session.attendees) {
             return session.attendees.length >= parseInt(session.capacity)
         } else {
             return false;
         }
+    }
+
+    _handleCancelSessionTapped() {
+        this.cancellingSession = true;
+        firebase.functions().httpsCallable("cancelSession")({
+            id: this.session.__id__
+        }).then(() => {
+            window.history.pushState({}, "ALO", "days/");
+            window.dispatchEvent(new CustomEvent("location-changed"));
+            this.cancellingSession = false;
+        }).catch(error => {
+            console.error("Error while cancelling session", error);
+            this.cancellingSession = false;
+        });
     }
 }
 

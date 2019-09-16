@@ -28,8 +28,8 @@ class CoachingLandingPage extends PolymerElement {
                 }
             </style>
             <div style="text-align: center; margin-top: 5rem;">
-                <h1>ISD Coaching</h1>
-                <h2>Everyone needs a coach</h2>
+                <h1>ALO</h1>
+                <h2>Additional Learning Opportunities</h2>
                 <coaching-signin-button class="blue" on-sign-in="_handleSignIn"></coaching-signin-button>
             </div>
         `;
