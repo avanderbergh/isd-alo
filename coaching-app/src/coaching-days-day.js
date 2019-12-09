@@ -39,20 +39,21 @@ class CoachingDaysDay extends PolymerElement {
 
   static get template() {
     return html`
-    <style>
-      .presenter-session {
-        background-color: #fff;
-        padding: 10px;
-        border-radius: 5px;
-        margin-right: 12px;
-        min-width: 100px;
-      }
+      <style>
+        .presenter-session {
+          background-color: #fff;
+          padding: 10px;
+          border-radius: 5px;
+          margin-right: 12px;
+          min-width: 100px;
+        }
 
-      .presenter-session a, a:visited {
-        color: var(--app-primary-color);
-        text-decoration: none;
-      }
-    </style>
+        .presenter-session a,
+        a:visited {
+          color: var(--app-primary-color);
+          text-decoration: none;
+        }
+      </style>
       <template is="dom-if" if="{{message}}">
         <p>[[message]]</p>
       </template>
@@ -67,8 +68,11 @@ class CoachingDaysDay extends PolymerElement {
             as="presenterSession"
           >
             <div class="presenter-session">
-              <a href="/sessions/[[presenterSession.__id__]]">[[presenterSession.title]]</a>
-              ([[_displayTime(presenterSession.startTime)]] - [[_displayTime(presenterSession.endTime)]])
+              <a href="/sessions/[[presenterSession.__id__]]"
+                >[[presenterSession.title]]</a
+              >
+              ([[_displayTime(presenterSession.startTime)]] -
+              [[_displayTime(presenterSession.endTime)]])
             </div>
           </template>
         </div>
@@ -130,11 +134,14 @@ class CoachingDaysDay extends PolymerElement {
     this.set("timeslots", []);
     while (time < endTime) {
       console.log("time", new Date(time));
+      let sessionLengthWithTransition =
+        day.sessionLength + day.transitionLength || 35;
+      console.log("sessionLength", sessionLengthWithTransition);
       this.push("timeslots", {
         startTime: new Date(time),
-        endTime: new Date(time + 35 * 60000)
+        endTime: new Date(time + sessionLengthWithTransition * 60000)
       });
-      time += 35 * 60000;
+      time += sessionLengthWithTransition * 60000;
     }
     this._loadPresenterSessions();
   }

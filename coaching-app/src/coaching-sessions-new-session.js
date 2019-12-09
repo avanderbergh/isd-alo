@@ -304,7 +304,10 @@ class CoachingSessionsNewSession extends PolymerElement {
             date: time,
             display: format(time, "H:mm")
           });
-          time = addMinutes(time, 35);
+          time = addMinutes(
+            time,
+            day.sessionLength + day.transitionLength || 35
+          );
         }
       }
     }
@@ -316,9 +319,15 @@ class CoachingSessionsNewSession extends PolymerElement {
       let displayEndTime;
       this.set("endTimes", []);
       while (time.getTime() < this.day.endTime.toDate().getTime()) {
-        displayEndTime = addMinutes(time, 30);
-        time = addMinutes(time, 35);
-        this.push("endTimes", { date: time, display: format(displayEndTime, "H:mm") });
+        displayEndTime = addMinutes(time, this.day.sessionLength || 30);
+        time = addMinutes(
+          time,
+          this.day.sessionLength + this.day.transitionLength || 35
+        );
+        this.push("endTimes", {
+          date: time,
+          display: format(displayEndTime, "H:mm")
+        });
       }
     }
   }

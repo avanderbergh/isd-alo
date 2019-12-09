@@ -114,34 +114,48 @@ exports.attendSession = functions.https.onCall((data, context) => {
 exports.unattendSession = functions.https.onCall((data, context) => {
   return new Promise((resolve, reject) => {
     const uid = context.auth.uid;
+    let session;
     db.collection("sessions")
       .doc(data.session)
       .get()
       .then(doc => {
-        const session = doc.data();
-        if (Date.now() > session.startTime.toDate() - 300000) {
+        session = doc.data();
+        return session;
+      })
+      .then(session => {
+        return db
+          .collection("days")
+          .where("endTime", ">=", session.endTime)
+          .orderBy("endTime", "asc")
+          .limit(1)
+          .get();
+      })
+      .then(querySnapshot => {
+        return querySnapshot.docs[0].data();
+      })
+      .then(day => {
+        console.log(day);
+        if (Date.now() > day.startTime.toDate() - 5 * 60 * 1000) {
+          console.log("Day has already started");
           resolve(false);
-          return;
+          return false;
         } else {
-          console.log("The session has not started");
-          db.collection("sessions")
+          return db
+            .collection("sessions")
             .doc(data.session)
             .update({
               attendees: admin.firestore.FieldValue.arrayRemove(uid)
-            })
-            .then(result => {
-              resolve(result);
-              return;
-            })
-            .catch(error => {
-              reject(error);
-              return;
             });
-          return;
         }
       })
-      .catch(error => {
-        reject(error);
+      .then(result => {
+        console.log("Unattended", !!result);
+        resolve(!!result);
+        return;
+      })
+      .catch(err => {
+        console.error(err);
+        reject(err);
         return;
       });
   });
@@ -149,14 +163,15 @@ exports.unattendSession = functions.https.onCall((data, context) => {
 
 exports.cancelSession = functions.https.onCall((data, context) => {
   return new Promise(resolve => {
-    return db.collection("sessions")
+    return db
+      .collection("sessions")
       .doc(data.id)
       .get()
       .then(doc => {
-        if (!doc.exists) throw(new Error("Session does not exist"));
+        if (!doc.exists) throw new Error("Session does not exist");
         const session = doc.data();
         if (!session.presenters.includes(context.auth.uid)) {
-          throw(new Error("Unauthorized!"));
+          throw new Error("Unauthorized!");
         }
         resolve(session);
         return false;
@@ -168,7 +183,8 @@ exports.cancelSession = functions.https.onCall((data, context) => {
       session.attendees.forEach(attendeeId => {
         notifyAttendeesPromises.push(
           new Promise(resolve => {
-            return db.collection("users")
+            return db
+              .collection("users")
               .doc(attendeeId)
               .get()
               .then(attendeeDoc => {
@@ -208,6 +224,30 @@ exports.cancelSession = functions.https.onCall((data, context) => {
         .doc(data.id)
         .delete();
       return false;
+    })
+    .then(() => {
+      const msg = {
+        to: [
+          {
+            name: "Amy Dugré",
+            email: "dugrea@isdedu.de"
+          },
+          {
+            name: "Kevin Collins",
+            email: "collinsk@isdedu.de"
+          }
+        ],
+        from: "noreply@isdedu.de",
+        subject: `ALO session ${data.sessionTitle} cancelled`,
+        text: `${data.presenterName} has cancelled their ALO session ${data.sessionTitle}`,
+        html: `${data.presenterName} has cancelled their ALO session ${data.sessionTitle}`
+      };
+      return new Promise((resolve, reject) => {
+        sgMail.send(msg, res => {
+          console.log(res);
+          resolve();
+        });
+      })
     })
     .catch(err => {
       console.error("Error while cancelling session", err);

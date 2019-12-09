@@ -75,6 +75,14 @@ class CoachingSessionDetail extends PolymerElement {
                     color: #fff;
                     background-color: var(--app-secondary-color);
                 }
+
+                #session-meta-data{
+                    display: flex;
+                }
+
+                #session-meta-data div {
+                    margin-right: 3rem;
+                }
             </style>
 
             <app-route route="{{route}}" pattern="/:sessionId" data="{{routeData}}">
@@ -87,7 +95,19 @@ class CoachingSessionDetail extends PolymerElement {
                         <paper-input value="{{session.title}}" on-keydown="_checkForEnterOnSessionTitle"></paper-input>
                     </template>
                 </template>
-                <p><b>Location:</b> [[space.name]]</p>
+                <div id="session-meta-data">
+                    <div><b>Location:</b> [[space.name]]</div>
+                    <div>
+                        <b>Grades: </b>
+                        <template is="dom-repeat" items="{{session.grades}}" as="grade">
+                            <span>{{grade}} </span>
+                        </template>
+                    </div>
+                    <div>
+                        <b>Attendees: </b>
+                        {{session.attendees.length}} / {{session.capacity}}
+                    </div>
+                </div>
                 <template is="dom-if" if="{{!showEditSessionDescription}}">
                     <p on-tap="_handleSessionDescriptionTapped">[[session.description]]</p>
                 </template>
@@ -269,7 +289,9 @@ class CoachingSessionDetail extends PolymerElement {
     _handleCancelSessionTapped() {
         this.cancellingSession = true;
         firebase.functions().httpsCallable("cancelSession")({
-            id: this.session.__id__
+            id: this.session.__id__,
+            presenterName: this.user.displayName,
+            sessionTitle: `${this.workshop.title}:${this.session.title}`
         }).then(() => {
             window.history.pushState({}, "ALO", "days/");
             window.dispatchEvent(new CustomEvent("location-changed"));

@@ -30,6 +30,14 @@ class CoachingDaysNewDay extends PolymerElement {
       dateTimeFormData: {
         type: Object,
         value: {}
+      },
+      sessionLength: {
+        type: Number,
+        value: 30
+      },
+      transitionLength: {
+        type: Number,
+        value: 5
       }
     };
   }
@@ -40,20 +48,42 @@ class CoachingDaysNewDay extends PolymerElement {
         #new-day-dialog {
           width: 500px;
         }
+
+        .dialog-content {
+          display: grid;
+        }
       </style>
 
       <paper-fab icon="add" on-tap="_handleAdddayTapped"></paper-fab>
       <paper-dialog id="new-day-dialog">
-        <label>Start</label>
-        <date-time-picker
-          date-time-format="{{fdtStart}}"
-          form-data="{{dateTimeFormData}}"
-        ></date-time-picker>
-        <label>End</label>
-        <date-time-picker
-          date-time-format="{{fdtEnd}}"
-          form-data="[[dateTimeFormData]]"
-        ></date-time-picker>
+        <div class="dialog-content">
+          <label>Start</label>
+          <date-time-picker
+            date-time-format="{{fdtStart}}"
+            form-data="{{dateTimeFormData}}"
+          ></date-time-picker>
+          <label>End</label>
+          <date-time-picker
+            date-time-format="{{fdtEnd}}"
+            form-data="[[dateTimeFormData]]"
+          ></date-time-picker>
+          <label for="session-length">Session Length (min)</label>
+          <paper-input
+            id="session-length"
+            value="{{sessionLength}}"
+            type="Number"
+            min="5"
+            max="240"
+          ></paper-input>
+          <label for="transition-length">Transition Length (min)</label>
+          <paper-input
+            id="transition-length"
+            value="{{transitionLength}}"
+            type="Number"
+            min="5"
+            max="240"
+          ></paper-input>
+        </div>
 
         <div class="buttons">
           <paper-button dialog-dismiss>Cancel</paper-button>
@@ -83,7 +113,9 @@ class CoachingDaysNewDay extends PolymerElement {
     const doc = Object.assign({}, this.formData, {
       startTime: new Date(this.fdtStart),
       endTime: new Date(this.fdtEnd),
-      show: true
+      show: true,
+      sessionLength: parseInt(this.sessionLength),
+      transitionLength: parseInt(this.transitionLength)
     });
     db.collection("days")
       .add(doc)
