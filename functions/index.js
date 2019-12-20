@@ -1,7 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const util = require("./utility/pass");
-const serviceAccount = require("./keys/isdcoaching-dev-firebase-adminsdk-ylcvn-b2b91cfed5.json");
+const serviceAccount = require("./keys/isdcoaching-firebase-adminsdk-sr31i-73c1c90637.json");
 const sgMail = require("@sendgrid/mail");
 
 admin.initializeApp({
@@ -247,7 +247,7 @@ exports.cancelSession = functions.https.onCall((data, context) => {
           console.log(res);
           resolve();
         });
-      })
+      });
     })
     .catch(err => {
       console.error("Error while cancelling session", err);
