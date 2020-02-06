@@ -130,6 +130,7 @@ class CoachingSessionsSessionCard extends PolymerElement {
               [[presenter.displayName]]
             </template>
             ([[space]])
+            - [[session.grades]]
           </p>
           <paper-progress
             max="[[session.capacity]]"

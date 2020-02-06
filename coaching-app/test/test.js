@@ -2,12 +2,12 @@ var assert = require('assert');
 describe('Firestore', function() {
   describe('Query data', function() {
     var firebase = require('firebase').initializeApp({
-        apiKey: "***REMOVED***",
+        apiKey: "AIzaSyBjQYbudDsRnDPVSmdanvawQ1cVKn77HKA",
         authDomain: "isdcoaching-dev.firebaseapp.com",
         databaseURL: "https://isdcoaching-dev.firebaseio.com",
         projectId: "isdcoaching-dev",
         storageBucket: "isdcoaching-dev.appspot.com",
-        messagingSenderId: "***REMOVED***"
+        messagingSenderId: "678411357948"
         
     });
     var ref = firebase.firestore();
