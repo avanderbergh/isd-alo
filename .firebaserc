@@ -1,6 +1,7 @@
 {
   "projects": {
     "dev": "isdcoaching-dev",
-    "production": "isdcoaching"
+    "production": "isdcoaching",
+    "default": "isdcoaching"
   }
 }

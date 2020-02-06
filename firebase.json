@@ -1,5 +1,4 @@
 {
-  
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
@@ -7,19 +6,15 @@
   "functions": {
     "predeploy": [
       "npm --prefix \"$RESOURCE_DIR\" run lint"
-    ]
+    ],
+    "source": "functions"
   },
   "hosting": {
     "public": "coaching-app/build/firebase-hosting",
     "ignore": [
       "firebase.json",
-      "**/.*"
-    ],
-    "rewrites": [
-      {
-        "source": "**/!(*.*)",
-        "destination": "/index.html"
-      }
+      "**/.*",
+      "**/node_modules/**"
     ]
   },
   "storage": {
