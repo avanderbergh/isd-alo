@@ -1,4 +1,6 @@
-# ISD Coaching App
+# ISD ALO App
+
+ISD ALO is a Web App Developed to facilitate a program where teachers can offer and students can sign up for additional learning opportunities. The App is built using Firebase and Polymer Web Components.
 
 ## Git branching
 
